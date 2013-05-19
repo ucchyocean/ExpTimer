@@ -10,7 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * @author ucchy
- *
+ * タイマータスク
  */
 public class TimerTask extends BukkitRunnable {
 
@@ -20,6 +20,9 @@ public class TimerTask extends BukkitRunnable {
     private int secondsGameRest;
     private int secondsGameMax;
 
+    /**
+     * このタイマーが一時停止されているかどうか
+     */
     protected boolean isPaused;
 
     /**
@@ -105,6 +108,12 @@ public class TimerTask extends BukkitRunnable {
         ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
     }
 
+    /**
+     * メッセージリソースを取得する
+     * @param key メッセージキー
+     * @param args メッセージの引数
+     * @return メッセージ
+     */
     private String getMessage(String key, Object... args) {
         String msg = Messages.get(key, args);
         if ( msg.equals("") ) {
@@ -113,6 +122,10 @@ public class TimerTask extends BukkitRunnable {
         return Utility.replaceColorCode(prefix + msg);
     }
 
+    /**
+     * このタイマーの現在状況を返す
+     * @return タイマーの現在状況
+     */
     protected String getStatus() {
 
         if ( isPaused ) {

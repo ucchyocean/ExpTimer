@@ -14,6 +14,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -21,7 +24,7 @@ import org.bukkit.scheduler.BukkitTask;
  * @author ucchy
  * 経験値タイマー
  */
-public class ExpTimer extends JavaPlugin {
+public class ExpTimer extends JavaPlugin implements Listener {
 
     protected static ExpTimer instance;
     protected static TimerTask runnable;
@@ -180,6 +183,8 @@ public class ExpTimer extends JavaPlugin {
         }
     }
 
+
+
     /**
      * 全プレイヤーの経験値レベルを設定する
      * @param level 設定するレベル
@@ -199,5 +204,17 @@ public class ExpTimer extends JavaPlugin {
 
     protected static File getPluginJarFile() {
         return instance.getFile();
+    }
+
+    /**
+     * プレイヤー死亡時に呼び出されるメソッド
+     * @param event
+     */
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+
+        // タイマー起動中の死亡は、経験値を落とさない
+        if ( runnable != null )
+            event.setDroppedExp(0);
     }
 }
