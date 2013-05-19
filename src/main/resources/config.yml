@@ -1,0 +1,9 @@
+# ExpTimer v1.0.0
+# @author     ucchy
+# @license    GPLv3
+# @copyright  Copyright ucchy 2013
+
+defaultSeconds: 600
+defaultReadySeconds: 10
+commandsOnStart: ['/say start!!']
+commandsOnEnd: ['/say end!!']
