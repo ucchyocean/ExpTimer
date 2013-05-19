@@ -106,7 +106,11 @@ public class TimerTask extends BukkitRunnable {
     }
 
     private String getMessage(String key, Object... args) {
-        return Utility.replaceColorCode(prefix + Messages.get(key, args));
+        String msg = Messages.get(key, args);
+        if ( msg.equals("") ) {
+            return "";
+        }
+        return Utility.replaceColorCode(prefix + msg);
     }
 
     protected String getStatus() {
