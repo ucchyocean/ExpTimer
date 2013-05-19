@@ -12,6 +12,7 @@ commands:
            /<command> pause - 経験値バータイマーを一旦停止する
            /<command> end - 経験値バータイマーを終了する
            /<command> status - 現在の設定を参照する
+           /<command> reload - config.yml をリロードする
     permission: exptimer
     permission-message: パーミッション "<permission>" がないため、コマンドを実行できません。
 permissions:

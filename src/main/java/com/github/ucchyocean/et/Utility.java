@@ -115,17 +115,4 @@ public class Utility {
     protected static String replaceColorCode(String source) {
         return source.replaceAll("&([0-9a-fk-or])", "\u00A7$1");
     }
-
-    /**
-     * 指定された文字数のアスタリスクの文字列を返す
-     * @param length アスタリスクの個数
-     * @return 指定された文字数のアスタリスク
-     */
-    protected static String getAstariskString(int length) {
-        StringBuilder buf = new StringBuilder();
-        for ( int i=0; i<length; i++ ) {
-            buf.append("*");
-        }
-        return buf.toString();
-    }
 }

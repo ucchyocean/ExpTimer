@@ -2,20 +2,21 @@ ExpTimer
 ========
 
 <p>
-<h2>ƒRƒ}ƒ“ƒh</h2>
-/et start [seconds] [readySeconds] - ŒoŒ±’lƒo[ƒ^ƒCƒ}[‚ğŠJn‚·‚é<br />
-/et pause - ŒoŒ±’lƒo[ƒ^ƒCƒ}[‚ğˆê’U’â~‚·‚é<br />
-/et end - ŒoŒ±’lƒo[ƒ^ƒCƒ}[‚ğI—¹‚·‚é<br />
-/et status - Œ»İ‚Ìİ’è‚ğQÆ‚·‚é<br />
+<h2>ã‚³ãƒãƒ³ãƒ‰</h2>
+/et start [seconds] [readySeconds] - çµŒé¨“å€¤ãƒãƒ¼ã‚¿ã‚¤ãƒãƒ¼ã‚’é–‹å§‹ã™ã‚‹<br />
+/et pause - çµŒé¨“å€¤ãƒãƒ¼ã‚¿ã‚¤ãƒãƒ¼ã‚’ä¸€æ—¦åœæ­¢ã™ã‚‹<br />
+/et end - çµŒé¨“å€¤ãƒãƒ¼ã‚¿ã‚¤ãƒãƒ¼ã‚’çµ‚äº†ã™ã‚‹<br />
+/et status - ç¾åœ¨ã®è¨­å®šã‚’å‚ç…§ã™ã‚‹<br />
+/et reload - config.yml ã‚’ãƒªãƒ­ãƒ¼ãƒ‰ã™ã‚‹<br />
 </p>
 
 <p>
-<h2>ƒRƒ“ƒtƒBƒO</h2>
-defaultSeconds - ‹K’è‚Ìƒ^ƒCƒ}[•b”<br />
-defaultReadySeconds - ‹K’è‚Ìƒ^ƒCƒ}[ŠJn‚Ü‚Å‚Ì•b”<br />
-commandsOnStart - ƒ^ƒCƒ}[ŠJn‚ÉÀs‚·‚éƒRƒ}ƒ“ƒh<br />
-@@—ájcommandsOnStart: ['/say ƒXƒ^[ƒgII‚ª‚ñ‚Î‚Á‚Ä‚­‚¾‚³‚¢‚ËI', '/tpa 100 65 100']<br />
-commandsOnEnd - ƒ^ƒCƒ}[I—¹‚ÉÀs‚·‚éƒRƒ}ƒ“ƒh<br />
-@@—ájcommandsOnEnd: ['/say I—¹II‚¨”æ‚ê—l‚Å‚µ‚½I', '/tpa 0 65 0']<br />
+<h2>ã‚³ãƒ³ãƒ•ã‚£ã‚°</h2>
+defaultSeconds - è¦å®šã®ã‚¿ã‚¤ãƒãƒ¼ç§’æ•°<br />
+defaultReadySeconds - è¦å®šã®ã‚¿ã‚¤ãƒãƒ¼é–‹å§‹ã¾ã§ã®ç§’æ•°<br />
+commandsOnStart - ã‚¿ã‚¤ãƒãƒ¼é–‹å§‹æ™‚ã«å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ï¼ˆã‚¹ãƒ©ãƒƒã‚·ãƒ¥ä¸è¦ãªã®ã§æ³¨æ„ï¼‰<br />
+ã€€ã€€ä¾‹ï¼‰commandsOnStart: ['say ã‚¹ã‚¿ãƒ¼ãƒˆï¼ï¼ãŒã‚“ã°ã£ã¦ãã ã•ã„ã­ï¼', 'tpa 100 65 100']<br />
+commandsOnEnd - ã‚¿ã‚¤ãƒãƒ¼çµ‚äº†æ™‚ã«å®Ÿè¡Œã™ã‚‹ã‚³ãƒãƒ³ãƒ‰ï¼ˆã‚¹ãƒ©ãƒƒã‚·ãƒ¥ä¸è¦ãªã®ã§æ³¨æ„ï¼‰<br />
+ã€€ã€€ä¾‹ï¼‰commandsOnEnd: ['say çµ‚äº†ï¼ï¼ãŠç–²ã‚Œæ§˜ã§ã—ãŸï¼', 'tpa 0 65 0']<br />
 </p>
 

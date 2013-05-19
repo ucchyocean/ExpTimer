@@ -5,5 +5,5 @@
 
 defaultSeconds: 600
 defaultReadySeconds: 10
-commandsOnStart: ['/say start!!']
-commandsOnEnd: ['/say end!!']
+commandsOnStart: ['say start!!']
+commandsOnEnd: ['say end!!']

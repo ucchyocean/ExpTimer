@@ -15,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 /**
  * @author ucchy
@@ -23,7 +24,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ExpTimer extends JavaPlugin {
 
     protected static ExpTimer instance;
-    protected static TimerTask task;
+    protected static TimerTask runnable;
+    protected static BukkitTask task;
 
     protected int defaultSeconds;
     protected int defaultReadySeconds;
@@ -40,6 +42,9 @@ public class ExpTimer extends JavaPlugin {
 
         // コンフィグのロード
         reloadConfigData();
+
+        // メッセージの初期化
+        Messages.initialize();
     }
 
     /**
@@ -49,10 +54,10 @@ public class ExpTimer extends JavaPlugin {
     public void onDisable() {
 
         // タスクが残ったままなら、強制終了しておく。
-        if ( task != null ) {
+        if ( runnable != null ) {
             getLogger().warning("タイマーが残ったままです。強制終了します。");
             getServer().getScheduler().cancelTask(task.getTaskId());
-            task = null;
+            runnable = null;
         }
     }
 
@@ -71,7 +76,7 @@ public class ExpTimer extends JavaPlugin {
         if ( args[0].equalsIgnoreCase("start") ) {
             // タイマーをスタートする
 
-            if ( task == null ) {
+            if ( runnable == null ) {
                 int seconds = defaultSeconds;
                 int readySeconds = defaultReadySeconds;
 
@@ -82,13 +87,13 @@ public class ExpTimer extends JavaPlugin {
                     readySeconds = Integer.parseInt(args[2]);
                 }
 
-                task = new TimerTask(seconds, readySeconds);
-                getServer().getScheduler().runTaskTimer(this, task, 20, 20);
+                runnable = new TimerTask(readySeconds, seconds);
+                task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
                 sender.sendMessage(ChatColor.GRAY + "タイマーを新規に開始しました。");
                 return true;
 
             } else {
-                task.isPaused = false;
+                runnable.isPaused = false;
                 sender.sendMessage(ChatColor.GRAY + "タイマーを再開しました。");
                 return true;
             }
@@ -96,36 +101,36 @@ public class ExpTimer extends JavaPlugin {
         } else if ( args[0].equalsIgnoreCase("pause") ) {
             // タイマーを一時停止する
 
-            if ( task == null ) {
+            if ( runnable == null ) {
                 sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
                 return true;
             }
 
-            task.isPaused = true;
+            runnable.isPaused = true;
             sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
             return true;
 
         } else if ( args[0].equalsIgnoreCase("end") ) {
             // タイマーを強制終了する
 
-            if ( task == null ) {
+            if ( runnable == null ) {
                 sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
                 return true;
             }
 
             getServer().getScheduler().cancelTask(task.getTaskId());
             sender.sendMessage(ChatColor.GRAY + "タイマーを強制停止しました。");
-            task = null;
+            runnable = null;
             return true;
 
         } else if ( args[0].equalsIgnoreCase("status") ) {
             // ステータスを参照する
 
             String stat;
-            if ( task == null ) {
+            if ( runnable == null ) {
                 stat = "タイマー停止中";
             } else {
-                stat = task.getStatus();
+                stat = runnable.getStatus();
             }
 
             sender.sendMessage(ChatColor.GRAY + "----- ExpTimer information -----");
@@ -140,6 +145,15 @@ public class ExpTimer extends JavaPlugin {
                 sender.sendMessage(ChatColor.WHITE + "  " + com);
             }
             sender.sendMessage(ChatColor.GRAY + "--------------------------------");
+
+            return true;
+
+        } else if ( args[0].equalsIgnoreCase("reload") ) {
+            // config.yml をリロードする
+
+            reloadConfigData();
+            sender.sendMessage(ChatColor.GRAY + "config.yml をリロードしました。");
+            return true;
         }
 
         return false;
@@ -160,7 +174,7 @@ public class ExpTimer extends JavaPlugin {
         if ( commandsOnStart == null ) {
             commandsOnStart = new ArrayList<String>();
         }
-        commandsOnEnd = config.getStringList("commandsOnStart");
+        commandsOnEnd = config.getStringList("commandsOnEnd");
         if ( commandsOnEnd == null ) {
             commandsOnEnd = new ArrayList<String>();
         }

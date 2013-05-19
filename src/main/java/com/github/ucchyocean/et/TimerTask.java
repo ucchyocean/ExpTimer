@@ -97,8 +97,8 @@ public class TimerTask extends BukkitRunnable {
 
         } else if ( secondsReadyRest <= 0 && secondsGameRest <= 0 ) {
 
-            Bukkit.getScheduler().cancelTask(getTaskId());
-            ExpTimer.task = null;
+            Bukkit.getScheduler().cancelTask(ExpTimer.task.getTaskId());
+            ExpTimer.runnable = null;
         }
 
         // 経験値バーの表示更新
@@ -106,13 +106,13 @@ public class TimerTask extends BukkitRunnable {
     }
 
     private String getMessage(String key, Object... args) {
-        return prefix + Messages.get(key, args);
+        return Utility.replaceColorCode(prefix + Messages.get(key, args));
     }
 
     protected String getStatus() {
 
         if ( isPaused ) {
-            return "一時停止中";
+            return "一時停止中 残りあと" + secondsGameRest + "秒";
         }
         if ( secondsReadyRest > 0 ) {
             return "開始準備中 開始まであと" + secondsReadyRest + "秒";
