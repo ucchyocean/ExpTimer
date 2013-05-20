@@ -1,12 +1,12 @@
 name: ExpTimer
 main: com.github.ucchyocean.et.ExpTimer
-version: 1.0.1
+version: 1.1.0
 author: ucchy
 description: 経験値バータイマー
 commands:
   exptimer:
     description: 経験値バータイマーコマンド
-    aliases: [et]
+    aliases: [et,timer]
     usage: |
            /<command> start (seconds) [readySeconds] - 経験値バータイマーを開始する
            /<command> pause - 経験値バータイマーを一旦停止する
@@ -19,4 +19,3 @@ permissions:
   exptimer:
     description: 経験値バータイマーコマンドパーミッション
     default: op
-    

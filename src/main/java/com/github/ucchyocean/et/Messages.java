@@ -31,9 +31,7 @@ public class Messages {
      */
     protected static void initialize() {
 
-        File file = new File(
-                ExpTimer.getConfigFolder() +
-                File.separator + FILE_NAME);
+        File file = new File(ExpTimer.getConfigFolder(), FILE_NAME);
 
         if ( !file.exists() ) {
             Utility.copyFileFromJar(ExpTimer.getPluginJarFile(),

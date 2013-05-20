@@ -26,14 +26,17 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public class ExpTimer extends JavaPlugin implements Listener {
 
-    protected static ExpTimer instance;
-    protected static TimerTask runnable;
-    protected static BukkitTask task;
+    private static ExpTimer instance;
+    private TimerTask runnable;
+    private BukkitTask task;
 
     protected int defaultSeconds;
     protected int defaultReadySeconds;
     protected List<String> commandsOnStart;
     protected List<String> commandsOnEnd;
+    protected int countdownOnStart;
+    protected int countdownOnEnd;
+    protected boolean useExpBar;
 
     /**
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -90,13 +93,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
                     readySeconds = Integer.parseInt(args[2]);
                 }
 
-                runnable = new TimerTask(readySeconds, seconds);
+                runnable = new TimerTask(this, readySeconds, seconds);
                 task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
                 sender.sendMessage(ChatColor.GRAY + "タイマーを新規に開始しました。");
                 return true;
 
             } else {
-                runnable.isPaused = false;
+                runnable.startFromPause();
                 sender.sendMessage(ChatColor.GRAY + "タイマーを再開しました。");
                 return true;
             }
@@ -109,7 +112,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 return true;
             }
 
-            runnable.isPaused = true;
+            runnable.pause();
             sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
             return true;
 
@@ -121,9 +124,8 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 return true;
             }
 
-            getServer().getScheduler().cancelTask(task.getTaskId());
+            endTask();
             sender.sendMessage(ChatColor.GRAY + "タイマーを強制停止しました。");
-            runnable = null;
             return true;
 
         } else if ( args[0].equalsIgnoreCase("status") ) {
@@ -181,16 +183,29 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( commandsOnEnd == null ) {
             commandsOnEnd = new ArrayList<String>();
         }
+        countdownOnStart = config.getInt("countdownOnStart", 3);
+        countdownOnEnd = config.getInt("countdownOnEnd", 5);
+        useExpBar = config.getBoolean("useExpBar", true);
     }
-
-
 
     /**
      * 全プレイヤーの経験値レベルを設定する
      * @param level 設定するレベル
      */
     protected static void setExpLevel(int level, int max) {
+
         float progress = (float)level / (float)max;
+        if ( progress > 1.0f ) {
+            progress = 1.0f;
+        } else if ( progress < 0.0f ) {
+            progress = 0.0f;
+        }
+        if ( level > 24000 ) {
+            level = 24000;
+        } else if ( level < 0 ) {
+            level = 0;
+        }
+
         Player[] players = instance.getServer().getOnlinePlayers();
         for ( Player player : players ) {
             player.setLevel(level);
@@ -198,10 +213,30 @@ public class ExpTimer extends JavaPlugin implements Listener {
         }
     }
 
+    /**
+     * 現在実行中のタスクを終了する
+     */
+    protected void endTask() {
+
+        if ( runnable != null ) {
+            getServer().getScheduler().cancelTask(task.getTaskId());
+            runnable = null;
+            task = null;
+        }
+    }
+
+    /**
+     * プラグインのデータフォルダを返す
+     * @return プラグインのデータフォルダ
+     */
     protected static File getConfigFolder() {
         return instance.getDataFolder();
     }
 
+    /**
+     * プラグインのJarファイル自体を示すFileオブジェクトを返す
+     * @return プラグインのJarファイル
+     */
     protected static File getPluginJarFile() {
         return instance.getFile();
     }

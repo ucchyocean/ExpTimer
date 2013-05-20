@@ -1,9 +1,9 @@
-# ExpTimer v1.0.1
+# ExpTimer v1.1.0
 # @author     ucchy
 # @license    GPLv3
 # @copyright  Copyright ucchy 2013
 
-prefix: '&f[ETimer]'
+prefix: '&f[ExpTimer]'
 preStartSec: '&d開始まで%2s秒'
 start: '&d開始！'
 rest300sec: '&d残り 5分です'
