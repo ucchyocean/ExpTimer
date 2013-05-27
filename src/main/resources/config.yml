@@ -1,12 +1,37 @@
-# ExpTimer v1.1.0
+# ExpTimer v1.2.0
 # @author     ucchy
 # @license    GPLv3
 # @copyright  Copyright ucchy 2013
 
-defaultSeconds: 600
-defaultReadySeconds: 10
-commandsOnStart: ['say start!!']
-commandsOnEnd: ['say end!!']
-countdownOnStart: 3
-countdownOnEnd: 5
-useExpBar: true
+default:
+  seconds: 600
+  readySeconds: 10
+  commandsOnStart: []
+  commandsOnEnd: []
+  countdownOnStart: 3
+  countdownOnEnd: 5
+  useExpBar: true
+  endWithCTTeamDefeat: false
+  endWithCTLeaderDefeat: false
+
+Timer1:
+  seconds: 100
+  readySeconds: 10
+  commandsOnStart: ['say hardmode start!!', 'difficulty 4']
+  commandsOnEnd: ['say hardmode timer1 end!!', 'difficulty 0']
+
+Timer2:
+  seconds: 1200
+  readySeconds: 10
+  commandsOnStart: ['say server open!', 'whitelist off']
+  commandsOnEnd: ['say game over!', 'whitelist on']
+  countdownOnStart: 5
+  countdownOnEnd: 10
+  useExpBar: false
+
+Timer3:
+  seconds: 10
+  readySeconds: 10
+  countdownOnStart: 1
+  countdownOnEnd: 1
+

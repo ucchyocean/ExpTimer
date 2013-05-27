@@ -75,7 +75,7 @@ public class TimerTask extends BukkitRunnable {
 
         // 条件に応じてアナウンス
         if ( !flagStart &&
-                secondsReadyRest <= plugin.countdownOnStart ) {
+                secondsReadyRest <= ExpTimer.config.countdownOnStart ) {
             if ( secondsReadyRest > 0 ) {
                 // スタート前のカウントダウン
                 broadcastMessage("preStartSec", secondsReadyRest);
@@ -84,7 +84,7 @@ public class TimerTask extends BukkitRunnable {
                 flagStart = true;
                 broadcastMessage("start");
                 // コマンドの実行
-                for ( String command : plugin.commandsOnStart ) {
+                for ( String command : ExpTimer.config.commandsOnStart ) {
                     Bukkit.dispatchCommand(
                             Bukkit.getConsoleSender(),
                             command);
@@ -104,7 +104,7 @@ public class TimerTask extends BukkitRunnable {
                 flagRest60sec = true;
                 broadcastMessage("rest60sec");
             } else if ( 0 < secondsGameRest &&
-                    secondsGameRest <= plugin.countdownOnEnd ) {
+                    secondsGameRest <= ExpTimer.config.countdownOnEnd ) {
                 // 終了前のカウントダウン
                 broadcastMessage("preEndSec", secondsGameRest);
             } else if ( secondsGameRest <= 0 ) {
@@ -112,7 +112,7 @@ public class TimerTask extends BukkitRunnable {
                 flagEnd = true;
                 broadcastMessage("end");
                 // コマンドの実行
-                for ( String command : plugin.commandsOnEnd ) {
+                for ( String command : ExpTimer.config.commandsOnEnd ) {
                     Bukkit.dispatchCommand(
                             Bukkit.getConsoleSender(),
                             command);
@@ -126,7 +126,7 @@ public class TimerTask extends BukkitRunnable {
         }
 
         // 経験値バーの表示更新
-        if ( plugin.useExpBar ) {
+        if ( ExpTimer.config.useExpBar ) {
             ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
         }
     }
