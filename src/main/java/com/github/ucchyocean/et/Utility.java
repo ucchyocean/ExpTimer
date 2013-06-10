@@ -18,8 +18,8 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 /**
- * @author ucchy
  * ユーティリティクラス
+ * @author ucchy
  */
 public class Utility {
 
@@ -114,5 +114,46 @@ public class Utility {
      */
     protected static String replaceColorCode(String source) {
         return source.replaceAll("&([0-9a-fk-or])", "\u00A7$1");
+    }
+
+    /**
+     * 指定されたバージョンが、基準より新しいバージョンかどうかを確認する<br>
+     * 完全一致した場合もtrueになることに注意。
+     * @param version 確認するバージョン
+     * @param border 基準のバージョン
+     * @return 基準より確認対象の方が新しいバージョンかどうか
+     */
+    public static boolean isUpperVersion(String version, String border) {
+
+        String[] versionArray = version.split("\\.");
+        int[] versionNumbers = new int[versionArray.length];
+        for ( int i=0; i<versionArray.length; i++ ) {
+            if ( !versionArray[i].matches("[0-9]+") )
+                return false;
+            versionNumbers[i] = Integer.parseInt(versionArray[i]);
+        }
+
+        String[] borderArray = border.split("\\.");
+        int[] borderNumbers = new int[borderArray.length];
+        for ( int i=0; i<borderArray.length; i++ ) {
+            if ( !borderArray[i].matches("[0-9]+") )
+                return false;
+            borderNumbers[i] = Integer.parseInt(borderArray[i]);
+        }
+
+        int index = 0;
+        while ( (versionNumbers.length > index) && (borderNumbers.length > index) ) {
+            if ( versionNumbers[index] > borderNumbers[index] ) {
+                return true;
+            } else if ( versionNumbers[index] < borderNumbers[index] ) {
+                return false;
+            }
+            index++;
+        }
+        if ( borderNumbers.length == index ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

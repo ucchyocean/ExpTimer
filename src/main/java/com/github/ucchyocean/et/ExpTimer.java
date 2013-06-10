@@ -8,6 +8,7 @@ package com.github.ucchyocean.et;
 import java.io.File;
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,12 +18,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
- * @author ucchy
  * 経験値タイマー
+ * @author ucchy
  */
 public class ExpTimer extends JavaPlugin implements Listener {
 
@@ -46,6 +48,23 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
         // メッセージの初期化
         Messages.initialize();
+
+
+        // ColorTeaming のロード
+        if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
+            Plugin temp = getServer().getPluginManager().getPlugin("ColorTeaming");
+            String ctversion = temp.getDescription().getVersion();
+            if ( Utility.isUpperVersion(ctversion, "2.0.0") ) {
+                getLogger().info("ColorTeaming がロードされました。連携機能を有効にします。");
+                getServer().getPluginManager().registerEvents(
+                        new ColorTeamingListener(this, temp), this);
+            } else {
+                getLogger().warning("ColorTeaming のバージョンが古いため、連携機能は無効になりました。");
+                getLogger().warning("連携機能を使用するには、ColorTeaming v2.0.0 以上が必要です。");
+            }
+        } else {
+            getLogger().warning("ColorTeaming がロードされていないため、連携機能は無効になりました。");
+        }
     }
 
     /**
@@ -117,9 +136,16 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 return true;
             }
 
-            runnable.pause();
-            sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
-            return true;
+            if ( !runnable.isPaused() ) {
+                runnable.pause();
+                sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
+                return true;
+            } else {
+                sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
+                return true;
+
+            }
+
 
         } else if ( args[0].equalsIgnoreCase("end") ) {
             // タイマーを強制終了する
@@ -130,6 +156,21 @@ public class ExpTimer extends JavaPlugin implements Listener {
             }
 
             endTask();
+            if ( config.useExpBar )
+                setExpLevel(0, 1);
+            sender.sendMessage(ChatColor.GRAY + "タイマーを停止しました。");
+
+            return true;
+
+        } else if ( args[0].equalsIgnoreCase("cancel") ) {
+            // タイマーを強制終了する
+
+            if ( runnable == null ) {
+                sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
+                return true;
+            }
+
+            cancelTask();
             if ( config.useExpBar )
                 setExpLevel(0, 1);
             sender.sendMessage(ChatColor.GRAY + "タイマーを強制停止しました。");
@@ -179,12 +220,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         saveDefaultConfig();
         reloadConfig();
         FileConfiguration config = getConfig();
-        configs = new HashMap<String, ETConfigData>();
+        ExpTimer.configs = new HashMap<String, ETConfigData>();
 
         // デフォルトのデータ読み込み
         ConfigurationSection section = config.getConfigurationSection("default");
         ETConfigData defaultData = ETConfigData.loadFromSection(section, null);
-        configs.put("default", defaultData);
+        ExpTimer.config = defaultData;
+        ExpTimer.configs.put("default", defaultData);
 
         // デフォルト以外のデータ読み込み
         for ( String key : config.getKeys(false) ) {
@@ -193,7 +235,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
             }
             section = config.getConfigurationSection(key);
             ETConfigData data = ETConfigData.loadFromSection(section, defaultData);
-            configs.put(key, data);
+            ExpTimer.configs.put(key, data);
         }
     }
 
@@ -225,13 +267,39 @@ public class ExpTimer extends JavaPlugin implements Listener {
     /**
      * 現在実行中のタスクを終了する
      */
-    protected void endTask() {
+    protected void cancelTask() {
 
         if ( runnable != null ) {
             getServer().getScheduler().cancelTask(task.getTaskId());
             runnable = null;
             task = null;
         }
+    }
+
+    /**
+     * 現在実行中のタスクを終了コマンドを実行してから終了する
+     */
+    protected void endTask() {
+
+        if ( runnable != null ) {
+
+            // 終了コマンドの実行
+            for ( String c : config.commandsOnEnd ) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), c);
+            }
+
+            getServer().getScheduler().cancelTask(task.getTaskId());
+            runnable = null;
+            task = null;
+        }
+    }
+
+    /**
+     * 現在のタイマータスクを取得する
+     * @return タスク
+     */
+    protected TimerTask getTask() {
+        return runnable;
     }
 
     /**

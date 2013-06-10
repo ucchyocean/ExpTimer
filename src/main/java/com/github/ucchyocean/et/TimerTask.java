@@ -11,8 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
- * @author ucchy
  * タイマータスク
+ * @author ucchy
  */
 public class TimerTask extends BukkitRunnable {
 
@@ -122,7 +122,7 @@ public class TimerTask extends BukkitRunnable {
 
         // 終了条件を満たす場合は、スケジュール解除
         if ( flagEnd ) {
-            plugin.endTask();
+            plugin.cancelTask();
         }
 
         // 経験値バーの表示更新
@@ -174,6 +174,10 @@ public class TimerTask extends BukkitRunnable {
      */
     protected void pause() {
         isPaused = true;
+    }
+
+    protected boolean isPaused() {
+        return isPaused;
     }
 
     /**

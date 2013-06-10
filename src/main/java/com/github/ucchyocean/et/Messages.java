@@ -16,8 +16,8 @@ import java.util.zip.ZipEntry;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 /**
- * @author ucchy
  * プラグインのメッセージリソース管理クラス
+ * @author ucchy
  */
 public class Messages {
 

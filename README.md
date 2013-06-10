@@ -7,7 +7,8 @@ ExpTimer
 ※ パーミッションノードは "exptimer"、OPはデフォルトで使用可能です。<br /><br />
 /timer start [seconds] [readySeconds] - 経験値バータイマーを開始する<br />
 /timer pause - 経験値バータイマーを一旦停止する<br />
-/timer end - 経験値バータイマーを終了する<br />
+/timer cancel - 経験値バータイマーを終了する(終了時コマンドを実行しない)<br />
+/timer end - 経験値バータイマーを終了する(終了時コマンドを実行する)<br />
 /timer status - 現在の設定を参照する<br />
 /timer reload - config.yml をリロードする<br />
 </p>
@@ -24,5 +25,10 @@ countdownOnStart - スタート前のカウントダウンを開始する秒数<
 　　例えば、「countdownOnStart: 15」とした場合、15秒前からカウントダウンを実行する。<br />
 countdownOnEnd - 終了前のカウントダウンを開始する秒数<br />
 useExpBar - 経験値バーおよび経験値レベルをタイマーとして使うかどうか<br />
+endWithCTTeamDefeat - ColorTeamingのチームが全滅したら、タイマーを終了するかどうか<br />
+　　※ ColorTeaming v2.0.0 以上が同時にロードされていない場合は、自動的にfalseになります。<br />
+endWithCTLeaderDefeat - ColorTeamingのリーダーが全滅したら、タイマーを終了するかどうか<br />
+　　※ ColorTeaming v2.0.0 以上が同時にロードされていない場合は、自動的にfalseになります。<br />
+endWithCTKillTrophy - ColorTeamingのKillTrophyが達成されたら、タイマーを終了するかどうか<br />
+　　※ ColorTeaming v2.0.0 以上が同時にロードされていない場合は、自動的にfalseになります。<br />
 </p>
-

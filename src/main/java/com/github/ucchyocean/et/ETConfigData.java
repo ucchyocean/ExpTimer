@@ -11,8 +11,8 @@ import java.util.List;
 import org.bukkit.configuration.ConfigurationSection;
 
 /**
- * @author ucchy
  * コンフィグデータコンポーネント
+ * @author ucchy
  */
 public class ETConfigData {
 
@@ -43,6 +43,9 @@ public class ETConfigData {
     /** ColorTeamingのリーダーが全滅したら、タイマーを終了するかどうか */
     protected boolean endWithCTLeaderDefeat;
 
+    /** ColorTeamingのKillTrophyが達成されたら、タイマーを終了するかどうか */
+    protected boolean endWithCTKillTrophy;
+
     /**
      * コンフィグのセクションから、ETConfigDataを作成して返す
      * @param section セクション
@@ -68,6 +71,7 @@ public class ETConfigData {
             data.useExpBar = section.getBoolean("useExpBar", true);
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
             data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
+            data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
         } else {
             data.seconds = section.getInt("seconds", defaults.seconds);
             data.readySeconds = section.getInt("readySeconds", defaults.readySeconds);
@@ -85,7 +89,9 @@ public class ETConfigData {
             data.endWithCTTeamDefeat =
                     section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
             data.endWithCTLeaderDefeat =
-                    section.getBoolean("endWithCTLeaderDefeat", defaults.endWithCTLeaderDefeat);
+                section.getBoolean("endWithCTLeaderDefeat", defaults.endWithCTLeaderDefeat);
+            data.endWithCTKillTrophy =
+                section.getBoolean("endWithCTKillTrophy", defaults.endWithCTKillTrophy);
         }
 
         return data;
@@ -114,6 +120,7 @@ public class ETConfigData {
         data.useExpBar = this.useExpBar;
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
         data.endWithCTLeaderDefeat = this.endWithCTLeaderDefeat;
+        data.endWithCTKillTrophy = this.endWithCTKillTrophy;
 
         return data;
     }
