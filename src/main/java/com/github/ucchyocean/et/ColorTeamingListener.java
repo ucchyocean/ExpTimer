@@ -5,19 +5,13 @@
  */
 package com.github.ucchyocean.et;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 
-import com.github.ucchyocean.ct.ColorTeaming;
-import com.github.ucchyocean.ct.ColorTeamingAPI;
-import com.github.ucchyocean.ct.event.ColorTeamingLeaderDefeatedEvent;
-import com.github.ucchyocean.ct.event.ColorTeamingTeamDefeatedEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingTrophyKillEvent;
+import com.github.ucchyocean.ct.event.ColorTeamingWonLeaderEvent;
+import com.github.ucchyocean.ct.event.ColorTeamingWonTeamEvent;
 
 /**
  * ColorTeaming連携機能リスナークラス
@@ -25,21 +19,48 @@ import com.github.ucchyocean.ct.event.ColorTeamingTrophyKillEvent;
  */
 public class ColorTeamingListener implements Listener {
 
-    private ExpTimer plugin;
-    private ColorTeaming ctplugin;
+    private static String prefix = Messages.get("prefix");
 
-    protected ColorTeamingListener(ExpTimer plugin, Plugin ctplugin) {
+    private ExpTimer plugin;
+
+    protected ColorTeamingListener(ExpTimer plugin) {
         this.plugin = plugin;
-        this.ctplugin = (ColorTeaming)ctplugin;
     }
 
     @EventHandler
-    public void onTeamDefeat(ColorTeamingTeamDefeatedEvent event) {
+    public void onTeamWon(ColorTeamingWonTeamEvent event) {
 
         // 設定オフなら、ここで終了する
         if ( !ExpTimer.config.endWithCTTeamDefeat ) {
             return;
         }
+
+        endTask(event.getWonTeamName());
+    }
+
+    @EventHandler
+    public void onLeaderDefeat(ColorTeamingWonLeaderEvent event) {
+
+        // 設定オフなら、ここで終了する
+        if ( !ExpTimer.config.endWithCTLeaderDefeat ) {
+            return;
+        }
+
+        endTask(event.getWonTeamName());
+    }
+
+    @EventHandler
+    public void onKillTrophy(ColorTeamingTrophyKillEvent event) {
+
+        // 設定オフなら、ここで終了する
+        if ( !ExpTimer.config.endWithCTLeaderDefeat ) {
+            return;
+        }
+
+        endTask(event.getTeam().getName());
+    }
+
+    private void endTask(String wonTeamName) {
 
         // タイマーが開始していないなら、ここで終了する。
         TimerTask task = plugin.getTask();
@@ -47,37 +68,24 @@ public class ColorTeamingListener implements Listener {
             return;
         }
 
-        // 残り1チームになったのかどうかを確認する
-        ColorTeamingAPI api = ctplugin.getAPI();
-        // TODO: getAllTeamMembers だと重いので、getAllTeamNames に変更したい
-        // TODO: もしくは、ColorTeaming側に、残り1チームになったというイベントを作る
-        HashMap<String, ArrayList<Player>> members = api.getAllTeamMembers();
+        // メッセージを流す
+        broadcastMessage("onTeamWon", wonTeamName);
 
-        ArrayList<String> noneMemberTeam = new ArrayList<String>();
-        for ( String teamName : members.keySet() ) {
-            if ( members.get(teamName).size() <= 0 ) {
-                noneMemberTeam.add(teamName);
-            }
-        }
-        for ( String t : noneMemberTeam ) {
-            members.remove(t);
-        }
-
-        if ( members.size() == 1 ) {
-            // TODO: メッセージを流す
-
-            // タスク終了
-            plugin.endTask();
-        }
+        // タスク終了
+        plugin.endTask();
     }
 
-    @EventHandler
-    public void onLeaderDefeat(ColorTeamingLeaderDefeatedEvent event) {
-        // TODO:
-    }
-
-    @EventHandler
-    public void onKillTrophy(ColorTeamingTrophyKillEvent event) {
-        // TODO:
+    /**
+     * メッセージリソースを取得し、ブロードキャストする
+     * @param key メッセージキー
+     * @param args メッセージの引数
+     * @return メッセージ
+     */
+    private void broadcastMessage(String key, Object... args) {
+        String msg = Messages.get(key, args);
+        if ( msg.equals("") ) {
+            return;
+        }
+        Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
     }
 }

@@ -49,7 +49,6 @@ public class ExpTimer extends JavaPlugin implements Listener {
         // メッセージの初期化
         Messages.initialize();
 
-
         // ColorTeaming のロード
         if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
             Plugin temp = getServer().getPluginManager().getPlugin("ColorTeaming");
@@ -57,7 +56,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
             if ( Utility.isUpperVersion(ctversion, "2.0.0") ) {
                 getLogger().info("ColorTeaming がロードされました。連携機能を有効にします。");
                 getServer().getPluginManager().registerEvents(
-                        new ColorTeamingListener(this, temp), this);
+                        new ColorTeamingListener(this), this);
             } else {
                 getLogger().warning("ColorTeaming のバージョンが古いため、連携機能は無効になりました。");
                 getLogger().warning("連携機能を使用するには、ColorTeaming v2.0.0 以上が必要です。");
