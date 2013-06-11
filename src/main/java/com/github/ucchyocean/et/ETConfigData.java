@@ -37,6 +37,9 @@ public class ETConfigData {
     /** 経験値バーをタイマー表示として使用するかどうか */
     protected boolean useExpBar;
 
+    /** 繰り返し実行するかどうか */
+    protected boolean repeat;
+
     /** ColorTeamingのチームが全滅したら、タイマーを終了するかどうか */
     protected boolean endWithCTTeamDefeat;
 
@@ -69,6 +72,7 @@ public class ETConfigData {
             data.countdownOnStart = section.getInt("countdownOnStart", 3);
             data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
             data.useExpBar = section.getBoolean("useExpBar", true);
+            data.repeat = section.getBoolean("repeat", false);
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
             data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
@@ -86,6 +90,7 @@ public class ETConfigData {
             data.countdownOnStart = section.getInt("countdownOnStart", defaults.countdownOnStart);
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
+            data.repeat = section.getBoolean("repeat", defaults.repeat);
             data.endWithCTTeamDefeat =
                     section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
             data.endWithCTLeaderDefeat =
@@ -118,6 +123,7 @@ public class ETConfigData {
         data.countdownOnStart = this.countdownOnStart;
         data.countdownOnEnd = this.countdownOnEnd;
         data.useExpBar = this.useExpBar;
+        data.repeat = this.repeat;
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
         data.endWithCTLeaderDefeat = this.endWithCTLeaderDefeat;
         data.endWithCTKillTrophy = this.endWithCTKillTrophy;

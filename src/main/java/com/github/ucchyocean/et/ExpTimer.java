@@ -49,6 +49,9 @@ public class ExpTimer extends JavaPlugin implements Listener {
         // メッセージの初期化
         Messages.initialize();
 
+        // イベントの登録
+        getServer().getPluginManager().registerEvents(this, this);
+
         // ColorTeaming のロード
         if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
             Plugin temp = getServer().getPluginManager().getPlugin("ColorTeaming");
@@ -61,8 +64,6 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 getLogger().warning("ColorTeaming のバージョンが古いため、連携機能は無効になりました。");
                 getLogger().warning("連携機能を使用するには、ColorTeaming v2.0.0 以上が必要です。");
             }
-        } else {
-            getLogger().warning("ColorTeaming がロードされていないため、連携機能は無効になりました。");
         }
     }
 
@@ -264,6 +265,15 @@ public class ExpTimer extends JavaPlugin implements Listener {
     }
 
     /**
+     * 新しいタスクを開始する
+     */
+    protected void startNewTask() {
+
+        runnable = new TimerTask(this, config.readySeconds, config.seconds);
+        task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
+    }
+
+    /**
      * 現在実行中のタスクを終了する
      */
     protected void cancelTask() {
@@ -284,6 +294,9 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
             // 終了コマンドの実行
             for ( String c : config.commandsOnEnd ) {
+                if ( c.startsWith("/") ) {
+                    c = c.substring(1); // スラッシュ削除
+                }
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), c);
             }
 
@@ -323,6 +336,8 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
+
+        System.out.println("exp : " + event.getDroppedExp());
 
         // タイマー起動中の死亡は、経験値を落とさない
         if ( runnable != null )

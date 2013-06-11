@@ -85,6 +85,9 @@ public class TimerTask extends BukkitRunnable {
                 broadcastMessage("start");
                 // コマンドの実行
                 for ( String command : ExpTimer.config.commandsOnStart ) {
+                    if ( command.startsWith("/") ) {
+                        command = command.substring(1); // スラッシュ削除
+                    }
                     Bukkit.dispatchCommand(
                             Bukkit.getConsoleSender(),
                             command);
@@ -113,6 +116,9 @@ public class TimerTask extends BukkitRunnable {
                 broadcastMessage("end");
                 // コマンドの実行
                 for ( String command : ExpTimer.config.commandsOnEnd ) {
+                    if ( command.startsWith("/") ) {
+                        command = command.substring(1); // スラッシュ削除
+                    }
                     Bukkit.dispatchCommand(
                             Bukkit.getConsoleSender(),
                             command);
@@ -123,6 +129,11 @@ public class TimerTask extends BukkitRunnable {
         // 終了条件を満たす場合は、スケジュール解除
         if ( flagEnd ) {
             plugin.cancelTask();
+
+            // リピート設定なら、新しいタスクを再スケジュール
+            if ( ExpTimer.config.repeat ) {
+                plugin.startNewTask();
+            }
         }
 
         // 経験値バーの表示更新
