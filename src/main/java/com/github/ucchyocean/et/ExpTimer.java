@@ -47,7 +47,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
         reloadConfigData();
 
         // メッセージの初期化
-        Messages.initialize();
+        Messages.initialize(null);
 
         // イベントの登録
         getServer().getPluginManager().registerEvents(this, this);
@@ -117,8 +117,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
                     }
                 }
 
-                runnable = new TimerTask(this, config.readySeconds, config.seconds);
-                task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
+                // configからメッセージのリロード
+                Messages.initialize(config.messageFileName);
+
+                startNewTask(null);
                 sender.sendMessage(ChatColor.GRAY + "タイマーを新規に開始しました。");
                 return true;
 
@@ -266,9 +268,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
     /**
      * 新しいタスクを開始する
+     * @param configName コンフィグ名、nullならそのままconfigを変更せずにタスクを開始する
      */
-    protected void startNewTask() {
+    protected void startNewTask(String configName) {
 
+        if ( configName != null ) {
+            config = configs.get(configName).clone();
+        }
         runnable = new TimerTask(this, config.readySeconds, config.seconds);
         task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
     }

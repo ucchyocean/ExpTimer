@@ -37,8 +37,11 @@ public class ETConfigData {
     /** 経験値バーをタイマー表示として使用するかどうか */
     protected boolean useExpBar;
 
-    /** 繰り返し実行するかどうか */
-    protected boolean repeat;
+    /** メッセージファイルのファイル名指定 */
+    protected String messageFileName;
+
+    /** 次に自動で実行するタスクのコンフィグ名 */
+    protected String nextConfig;
 
     /** ColorTeamingのチームが全滅したら、タイマーを終了するかどうか */
     protected boolean endWithCTTeamDefeat;
@@ -72,7 +75,8 @@ public class ETConfigData {
             data.countdownOnStart = section.getInt("countdownOnStart", 3);
             data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
             data.useExpBar = section.getBoolean("useExpBar", true);
-            data.repeat = section.getBoolean("repeat", false);
+            data.messageFileName = section.getString("messageFileName");
+            data.nextConfig = section.getString("nextConfig");
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
             data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
@@ -90,13 +94,16 @@ public class ETConfigData {
             data.countdownOnStart = section.getInt("countdownOnStart", defaults.countdownOnStart);
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
-            data.repeat = section.getBoolean("repeat", defaults.repeat);
             data.endWithCTTeamDefeat =
-                    section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
+                section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
             data.endWithCTLeaderDefeat =
                 section.getBoolean("endWithCTLeaderDefeat", defaults.endWithCTLeaderDefeat);
             data.endWithCTKillTrophy =
                 section.getBoolean("endWithCTKillTrophy", defaults.endWithCTKillTrophy);
+
+            // メッセージファイル設定、次タスク設定は、デフォルトを引き継がない。
+            data.messageFileName = section.getString("messageFileName");
+            data.nextConfig = section.getString("nextConfig");
         }
 
         return data;
@@ -123,7 +130,8 @@ public class ETConfigData {
         data.countdownOnStart = this.countdownOnStart;
         data.countdownOnEnd = this.countdownOnEnd;
         data.useExpBar = this.useExpBar;
-        data.repeat = this.repeat;
+        data.messageFileName = this.messageFileName;
+        data.nextConfig = this.nextConfig;
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
         data.endWithCTLeaderDefeat = this.endWithCTLeaderDefeat;
         data.endWithCTKillTrophy = this.endWithCTKillTrophy;

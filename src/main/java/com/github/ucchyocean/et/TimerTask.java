@@ -131,8 +131,9 @@ public class TimerTask extends BukkitRunnable {
             plugin.cancelTask();
 
             // リピート設定なら、新しいタスクを再スケジュール
-            if ( ExpTimer.config.repeat ) {
-                plugin.startNewTask();
+            if ( ExpTimer.config.nextConfig != null &&
+                    ExpTimer.configs.containsKey(ExpTimer.config.nextConfig) ) {
+                plugin.startNewTask(ExpTimer.config.nextConfig);
             }
         }
 

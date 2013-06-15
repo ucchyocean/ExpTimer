@@ -27,6 +27,10 @@ public class ColorTeamingListener implements Listener {
         this.plugin = plugin;
     }
 
+    /**
+     * ColorTeaming チーム全滅イベント
+     * @param event
+     */
     @EventHandler
     public void onTeamWon(ColorTeamingWonTeamEvent event) {
 
@@ -38,6 +42,10 @@ public class ColorTeamingListener implements Listener {
         endTask(event.getWonTeamName());
     }
 
+    /**
+     * ColorTeaming 大将全滅イベント
+     * @param event
+     */
     @EventHandler
     public void onLeaderDefeat(ColorTeamingWonLeaderEvent event) {
 
@@ -49,6 +57,10 @@ public class ColorTeamingListener implements Listener {
         endTask(event.getWonTeamName());
     }
 
+    /**
+     * ColorTeaming kill数達成イベント
+     * @param event
+     */
     @EventHandler
     public void onKillTrophy(ColorTeamingTrophyKillEvent event) {
 
@@ -60,6 +72,10 @@ public class ColorTeamingListener implements Listener {
         endTask(event.getTeam().getName());
     }
 
+    /**
+     * タスクを終了する
+     * @param wonTeamName 勝利したチームのチーム名
+     */
     private void endTask(String wonTeamName) {
 
         // タイマーが開始していないなら、ここで終了する。

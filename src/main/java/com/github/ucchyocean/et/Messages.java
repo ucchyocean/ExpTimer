@@ -28,17 +28,24 @@ public class Messages {
 
     /**
      * 初期化する
+     * @param filename ファイル名、nullや存在しないファイルが指定されたならデフォルトになる
      */
-    protected static void initialize() {
+    protected static void initialize(String filename) {
 
-        File file = new File(ExpTimer.getConfigFolder(), FILE_NAME);
-
-        if ( !file.exists() ) {
-            Utility.copyFileFromJar(ExpTimer.getPluginJarFile(),
-                    file, FILE_NAME, false);
+        // デフォルトメッセージをロード
+        if ( defaultMessages == null ) {
+            defaultMessages = loadDefaultMessages();
         }
 
-        defaultMessages = loadDefaultMessages();
+        // メッセージファイルをロード
+        if ( filename == null ) {
+            filename = FILE_NAME;
+        }
+        File file = new File(ExpTimer.getConfigFolder(), filename);
+        if ( !file.exists() ) {
+            Utility.copyFileFromJar(ExpTimer.getPluginJarFile(),
+                    file, filename, false);
+        }
         resources = YamlConfiguration.loadConfiguration(file);
     }
 
@@ -50,7 +57,7 @@ public class Messages {
     protected static String get(String key) {
 
         if ( resources == null ) {
-            initialize();
+            initialize(FILE_NAME);
         }
         String def = defaultMessages.getString(key, "");
         return resources.getString(key, def);

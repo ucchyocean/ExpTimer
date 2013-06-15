@@ -1,4 +1,4 @@
-# ExpTimer v2.0.0
+# ExpTimer v2.1.0
 # @author     ucchy
 # @license    GPLv3
 # @copyright  Copyright ucchy 2013
@@ -11,7 +11,6 @@ default:
   countdownOnStart: 3
   countdownOnEnd: 5
   useExpBar: true
-  repeat: false
   endWithCTTeamDefeat: false
   endWithCTLeaderDefeat: false
   endWithCTKillTrophy: false
