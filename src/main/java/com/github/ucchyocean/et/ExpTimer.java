@@ -274,6 +274,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
         if ( configName != null ) {
             config = configs.get(configName).clone();
+            Messages.initialize(config.messageFileName);
         }
         runnable = new TimerTask(this, config.readySeconds, config.seconds);
         task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
