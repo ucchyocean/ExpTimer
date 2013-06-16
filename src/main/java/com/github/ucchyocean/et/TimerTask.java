@@ -126,6 +126,11 @@ public class TimerTask extends BukkitRunnable {
             }
         }
 
+        // 経験値バーの表示更新
+        if ( ExpTimer.config.useExpBar ) {
+            ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
+        }
+
         // 終了条件を満たす場合は、スケジュール解除
         if ( flagEnd ) {
             plugin.cancelTask();
@@ -135,11 +140,6 @@ public class TimerTask extends BukkitRunnable {
                     ExpTimer.configs.containsKey(ExpTimer.config.nextConfig) ) {
                 plugin.startNewTask(ExpTimer.config.nextConfig);
             }
-        }
-
-        // 経験値バーの表示更新
-        if ( ExpTimer.config.useExpBar ) {
-            ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
         }
     }
 
