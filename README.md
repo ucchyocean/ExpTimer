@@ -24,6 +24,7 @@ commandsOnEnd - タイマー終了時に実行するコマンド（スラッシ�
 countdownOnStart - スタート前のカウントダウンを開始する秒数<br />
 　　例えば、「countdownOnStart: 15」とした場合、15秒前からカウントダウンを実行する。<br />
 countdownOnEnd - 終了前のカウントダウンを開始する秒数<br />
+playSound - カウントダウン中に音を出すかどうか<br />
 useExpBar - 経験値バーおよび経験値レベルをタイマーとして使うかどうか<br />
 endWithCTTeamDefeat - ColorTeamingのチームが全滅したら、タイマーを終了するかどうか<br />
 　　※ ColorTeaming v2.0.0 以上が同時にロードされていない場合は、自動的にfalseになります。<br />

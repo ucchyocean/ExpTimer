@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import com.github.ucchyocean.ct.config.TeamNameSetting;
 import com.github.ucchyocean.ct.event.ColorTeamingTrophyKillEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingWonLeaderEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingWonTeamEvent;
@@ -18,8 +19,6 @@ import com.github.ucchyocean.ct.event.ColorTeamingWonTeamEvent;
  * @author ucchy
  */
 public class ColorTeamingListener implements Listener {
-
-    private static String prefix = Messages.get("prefix");
 
     private ExpTimer plugin;
 
@@ -92,12 +91,22 @@ public class ColorTeamingListener implements Listener {
     }
 
     /**
+     * タスクを終了する
+     * @param wonTeamName 勝利したチームのチーム名
+     */
+    private void endTask(TeamNameSetting wonTeamName) {
+
+        endTask(wonTeamName.toString());
+    }
+
+    /**
      * メッセージリソースを取得し、ブロードキャストする
      * @param key メッセージキー
      * @param args メッセージの引数
      * @return メッセージ
      */
     private void broadcastMessage(String key, Object... args) {
+        String prefix = Messages.get("prefix");
         String msg = Messages.get(key, args);
         if ( msg.equals("") ) {
             return;

@@ -34,6 +34,9 @@ public class ETConfigData {
     /** タイマー終了前のカウントダウン時間（秒） */
     protected int countdownOnEnd;
 
+    /** カウントダウン中に音を出すかどうか */
+    protected boolean playSound;
+    
     /** 経験値バーをタイマー表示として使用するかどうか */
     protected boolean useExpBar;
 
@@ -74,6 +77,7 @@ public class ETConfigData {
             }
             data.countdownOnStart = section.getInt("countdownOnStart", 3);
             data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
+            data.playSound = section.getBoolean("playSound", true);
             data.useExpBar = section.getBoolean("useExpBar", true);
             data.messageFileName = section.getString("messageFileName");
             data.nextConfig = section.getString("nextConfig");
@@ -93,6 +97,7 @@ public class ETConfigData {
                 data.commandsOnEnd = copyList(defaults.commandsOnEnd);
             data.countdownOnStart = section.getInt("countdownOnStart", defaults.countdownOnStart);
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
+            data.playSound = section.getBoolean("playSound", defaults.playSound);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
             data.endWithCTTeamDefeat =
                 section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
@@ -129,6 +134,7 @@ public class ETConfigData {
         }
         data.countdownOnStart = this.countdownOnStart;
         data.countdownOnEnd = this.countdownOnEnd;
+        data.playSound = this.playSound;
         data.useExpBar = this.useExpBar;
         data.messageFileName = this.messageFileName;
         data.nextConfig = this.nextConfig;

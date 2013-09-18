@@ -56,13 +56,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
             Plugin temp = getServer().getPluginManager().getPlugin("ColorTeaming");
             String ctversion = temp.getDescription().getVersion();
-            if ( Utility.isUpperVersion(ctversion, "2.0.0") ) {
+            if ( Utility.isUpperVersion(ctversion, "2.2.0") ) {
                 getLogger().info("ColorTeaming がロードされました。連携機能を有効にします。");
                 getServer().getPluginManager().registerEvents(
                         new ColorTeamingListener(this), this);
             } else {
                 getLogger().warning("ColorTeaming のバージョンが古いため、連携機能は無効になりました。");
-                getLogger().warning("連携機能を使用するには、ColorTeaming v2.0.0 以上が必要です。");
+                getLogger().warning("連携機能を使用するには、ColorTeaming v2.2.0 以上が必要です。");
             }
         }
     }
@@ -281,7 +281,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
     }
 
     /**
-     * 現在実行中のタスクを終了する
+     * 現在実行中のタスクを中断する。終了時のコマンドは実行されない。
      */
     protected void cancelTask() {
 
@@ -343,8 +343,6 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-
-        System.out.println("exp : " + event.getDroppedExp());
 
         // タイマー起動中の死亡は、経験値を落とさない
         if ( runnable != null )

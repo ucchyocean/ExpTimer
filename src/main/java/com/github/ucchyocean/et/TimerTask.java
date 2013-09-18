@@ -5,9 +5,12 @@
  */
 package com.github.ucchyocean.et;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -79,19 +82,18 @@ public class TimerTask extends BukkitRunnable {
             if ( secondsReadyRest > 0 ) {
                 // スタート前のカウントダウン
                 broadcastMessage("preStartSec", secondsReadyRest);
+                if ( ExpTimer.config.playSound ) {
+                    playPing();
+                }
             } else {
                 // スタート
                 flagStart = true;
                 broadcastMessage("start");
-                // コマンドの実行
-                for ( String command : ExpTimer.config.commandsOnStart ) {
-                    if ( command.startsWith("/") ) {
-                        command = command.substring(1); // スラッシュ削除
-                    }
-                    Bukkit.dispatchCommand(
-                            Bukkit.getConsoleSender(),
-                            command);
+                if ( ExpTimer.config.playSound ) {
+                    playPong();
                 }
+                // コマンドの実行
+                dispatchCommands(ExpTimer.config.commandsOnStart);
             }
         } else if ( !flagEnd ) {
             if ( !flagRest300sec && secondsGameRest <= 300 ) {
@@ -110,19 +112,18 @@ public class TimerTask extends BukkitRunnable {
                     secondsGameRest <= ExpTimer.config.countdownOnEnd ) {
                 // 終了前のカウントダウン
                 broadcastMessage("preEndSec", secondsGameRest);
+                if ( ExpTimer.config.playSound ) {
+                    playPing();
+                }
             } else if ( secondsGameRest <= 0 ) {
                 // 終了
                 flagEnd = true;
                 broadcastMessage("end");
-                // コマンドの実行
-                for ( String command : ExpTimer.config.commandsOnEnd ) {
-                    if ( command.startsWith("/") ) {
-                        command = command.substring(1); // スラッシュ削除
-                    }
-                    Bukkit.dispatchCommand(
-                            Bukkit.getConsoleSender(),
-                            command);
+                if ( ExpTimer.config.playSound ) {
+                    playPong();
                 }
+                // コマンドの実行
+                dispatchCommands(ExpTimer.config.commandsOnEnd);
             }
         }
 
@@ -142,7 +143,6 @@ public class TimerTask extends BukkitRunnable {
             }
         }
     }
-
 
     /**
      * secondsReadyRest, secondsGameRest を更新する。
@@ -184,18 +184,22 @@ public class TimerTask extends BukkitRunnable {
     /**
      * タイマーを一時停止する
      */
-    protected void pause() {
+    public void pause() {
         isPaused = true;
     }
 
-    protected boolean isPaused() {
+    /**
+     * タイマーが一時停止しているかどうかを返す
+     * @return タイマーが一時停止しているかどうか
+     */
+    public boolean isPaused() {
         return isPaused;
     }
 
     /**
      * タイマーを一時停止状態から再開する
      */
-    protected void startFromPause() {
+    public void startFromPause() {
         if ( isPaused ) {
             isPaused = false;
             long current = System.currentTimeMillis();
@@ -204,6 +208,41 @@ public class TimerTask extends BukkitRunnable {
         }
     }
 
+    /**
+     * このタイマーの現在状況を返す
+     * @return タイマーの現在状況
+     */
+    public String getStatus() {
+
+        if ( isPaused ) {
+            return "一時停止中 残りあと" + secondsGameRest + "秒";
+        }
+        if ( secondsReadyRest > 0 ) {
+            return "開始準備中 開始まであと" + secondsReadyRest + "秒";
+        }
+        if ( secondsGameRest > 0 ) {
+            return "開始中 終了まであと" + secondsGameRest + "秒";
+        }
+        return "終了状態";
+    }
+
+    
+    /**
+     * 指定されたコマンドをまとめて実行する。コマンドはコンソールで実行される。
+     * @param commands コマンド
+     */
+    private void dispatchCommands(List<String> commands) {
+        
+        for ( String command : commands ) {
+            if ( command.startsWith("/") ) {
+                command = command.substring(1); // スラッシュ削除
+            }
+            Bukkit.dispatchCommand(
+                    Bukkit.getConsoleSender(),
+                    command);
+        }
+    }
+    
     /**
      * メッセージリソースを取得し、ブロードキャストする
      * @param key メッセージキー
@@ -217,22 +256,18 @@ public class TimerTask extends BukkitRunnable {
         }
         Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
     }
-
-    /**
-     * このタイマーの現在状況を返す
-     * @return タイマーの現在状況
-     */
-    protected String getStatus() {
-
-        if ( isPaused ) {
-            return "一時停止中 残りあと" + secondsGameRest + "秒";
+    
+    private void playPing() {
+        
+        for ( Player player : Bukkit.getOnlinePlayers() ) {
+            player.playSound(player.getEyeLocation(), Sound.NOTE_STICKS, 1.0F, 1.0F);
         }
-        if ( secondsReadyRest > 0 ) {
-            return "開始準備中 開始まであと" + secondsReadyRest + "秒";
+    }
+    
+    private void playPong() {
+        
+        for ( Player player : Bukkit.getOnlinePlayers() ) {
+            player.playSound(player.getEyeLocation(), Sound.NOTE_PLING, 1.0F, 1.0F);
         }
-        if ( secondsGameRest > 0 ) {
-            return "開始中 終了まであと" + secondsGameRest + "秒";
-        }
-        return "終了状態";
     }
 }

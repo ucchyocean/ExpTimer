@@ -1,4 +1,4 @@
-# ExpTimer v2.1.0
+# ExpTimer v2.2.0
 # @author     ucchy
 # @license    GPLv3
 # @copyright  Copyright ucchy 2013
@@ -10,6 +10,7 @@ default:
   commandsOnEnd: []
   countdownOnStart: 3
   countdownOnEnd: 5
+  playSound: true
   useExpBar: true
   endWithCTTeamDefeat: false
   endWithCTLeaderDefeat: false
@@ -28,6 +29,7 @@ Timer2:
   commandsOnEnd: ['say game over!', 'whitelist on']
   countdownOnStart: 5
   countdownOnEnd: 10
+  playSound: false
   useExpBar: false
 
 Timer3:
