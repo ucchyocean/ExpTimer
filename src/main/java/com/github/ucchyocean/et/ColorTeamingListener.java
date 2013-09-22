@@ -6,6 +6,7 @@
 package com.github.ucchyocean.et;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -96,7 +97,7 @@ public class ColorTeamingListener implements Listener {
      */
     private void endTask(TeamNameSetting wonTeamName) {
 
-        endTask(wonTeamName.toString());
+        endTask(wonTeamName.toString() + ChatColor.RESET);
     }
 
     /**

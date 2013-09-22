@@ -34,6 +34,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
     protected static ETConfigData config;
     protected static HashMap<String, ETConfigData> configs;
+    private String currentConfigName;
 
     /**
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -185,12 +186,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
             if ( runnable == null ) {
                 stat = "タイマー停止中";
             } else {
-                stat = runnable.getStatus();
+                stat = runnable.getStatusDescription();
             }
 
             sender.sendMessage(ChatColor.GRAY + "----- ExpTimer information -----");
             sender.sendMessage(ChatColor.GRAY + "現在の状況：" +
                     ChatColor.WHITE + stat);
+            sender.sendMessage(ChatColor.GRAY + "現在の設定名：" + currentConfigName);
             sender.sendMessage(ChatColor.GRAY + "開始時に実行するコマンド：");
             for ( String com : config.commandsOnStart ) {
                 sender.sendMessage(ChatColor.WHITE + "  " + com);
@@ -229,6 +231,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
         ETConfigData defaultData = ETConfigData.loadFromSection(section, null);
         ExpTimer.config = defaultData;
         ExpTimer.configs.put("default", defaultData);
+        currentConfigName = "default";
 
         // デフォルト以外のデータ読み込み
         for ( String key : config.getKeys(false) ) {
@@ -272,9 +275,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     protected void startNewTask(String configName) {
 
-        if ( configName != null ) {
+        if ( configName != null && configs.containsKey(configName) ) {
             config = configs.get(configName).clone();
             Messages.initialize(config.messageFileName);
+            currentConfigName = configName;
         }
         runnable = new TimerTask(this, config.readySeconds, config.seconds);
         task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
@@ -317,7 +321,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
      * 現在のタイマータスクを取得する
      * @return タスク
      */
-    protected TimerTask getTask() {
+    public TimerTask getTask() {
         return runnable;
     }
 

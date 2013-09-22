@@ -19,11 +19,25 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public class TimerTask extends BukkitRunnable {
 
-    private static String prefix = Messages.get("prefix");
-
+    /** タイマータスクのステータス列挙体 */
+    public enum Status {
+        
+        /** 一時停止中 */
+        PAUSED,
+        
+        /** 開始準備中 */
+        READY,
+        
+        /** 開始中 */
+        RUN,
+        
+        /** 終了状態 */
+        END;
+    }
+    
     // 実行開始までにかかる処理時間を考慮して、
     // 少し待つためのオフセット（ミリ秒）
-    private static final long OFFSET = 500;
+    private static final long OFFSET = 150;
 
     private int secondsReadyRest;
     private int secondsGameRest;
@@ -207,12 +221,30 @@ public class TimerTask extends BukkitRunnable {
             tickGameBase = current + secondsGameRest * 1000 + OFFSET;
         }
     }
+    
+    /**
+     * 現在のステータスを返す
+     * @return ステータス
+     */
+    public Status getStatus() {
+        
+        if ( isPaused ) {
+            return Status.PAUSED;
+        }
+        if ( secondsReadyRest > 0 ) {
+            return Status.READY;
+        }
+        if ( secondsGameRest > 0 ) {
+            return Status.RUN;
+        }
+        return Status.END;
+    }
 
     /**
      * このタイマーの現在状況を返す
      * @return タイマーの現在状況
      */
-    public String getStatus() {
+    public String getStatusDescription() {
 
         if ( isPaused ) {
             return "一時停止中 残りあと" + secondsGameRest + "秒";
@@ -226,6 +258,21 @@ public class TimerTask extends BukkitRunnable {
         return "終了状態";
     }
 
+    /**
+     * 残りの準備秒数を返す
+     * @return 残りの準備秒数
+     */
+    public int getSecondsReadyRest() {
+        return secondsReadyRest;
+    }
+    
+    /**
+     * 残りのゲーム秒数を返す
+     * @return 残りのゲーム秒数
+     */
+    public int getSecondsGameRest() {
+        return secondsGameRest;
+    }
     
     /**
      * 指定されたコマンドをまとめて実行する。コマンドはコンソールで実行される。
@@ -254,9 +301,13 @@ public class TimerTask extends BukkitRunnable {
         if ( msg.equals("") ) {
             return;
         }
+        String prefix = Messages.get("prefix");
         Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
     }
     
+    /**
+     * カウントダウンの音を出す
+     */
     private void playPing() {
         
         for ( Player player : Bukkit.getOnlinePlayers() ) {
@@ -264,6 +315,9 @@ public class TimerTask extends BukkitRunnable {
         }
     }
     
+    /**
+     * カウントダウンからの開始音を出す
+     */
     private void playPong() {
         
         for ( Player player : Bukkit.getOnlinePlayers() ) {

@@ -38,3 +38,13 @@ Timer3:
   countdownOnStart: 1
   countdownOnEnd: 1
 
+infiniteTimer:
+  seconds: 20
+  readySeconds: 0
+  commandsOnStart: ['say start!']
+  commandsOnEnd: []
+  countdownOnStart: 0
+  countdownOnEnd: 0
+  playSound: true
+  nextConfig: 'infiniteTimer'
+
