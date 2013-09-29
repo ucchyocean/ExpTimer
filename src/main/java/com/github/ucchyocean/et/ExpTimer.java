@@ -144,7 +144,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
                 return true;
             } else {
-                sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
+                sender.sendMessage(ChatColor.RED + "タイマーは既に一時停止状態です！");
                 return true;
 
             }
