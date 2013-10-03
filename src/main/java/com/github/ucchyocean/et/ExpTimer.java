@@ -126,9 +126,14 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 return true;
 
             } else {
-                runnable.startFromPause();
-                sender.sendMessage(ChatColor.GRAY + "タイマーを再開しました。");
-                return true;
+                if ( runnable.isPaused() ) {
+                    runnable.startFromPause();
+                    sender.sendMessage(ChatColor.GRAY + "タイマーを再開しました。");
+                    return true;
+                } else {
+                    sender.sendMessage(ChatColor.RED + "タイマーが既に開始されています！");
+                    return true;
+                }
             }
 
         } else if ( args[0].equalsIgnoreCase("pause") ) {
@@ -294,6 +299,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
             runnable = null;
             task = null;
         }
+        
+        if ( ExpTimer.config.useExpBar ) {
+            ExpTimer.setExpLevel(0, 1);
+        }
     }
 
     /**
@@ -314,6 +323,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
             getServer().getScheduler().cancelTask(task.getTaskId());
             runnable = null;
             task = null;
+        }
+        
+        if ( ExpTimer.config.useExpBar ) {
+            ExpTimer.setExpLevel(0, 1);
         }
     }
 
