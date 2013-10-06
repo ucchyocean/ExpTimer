@@ -212,6 +212,23 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
             return true;
 
+        } else if ( args[0].equalsIgnoreCase("list") ) {
+            // コンフィグ一覧を表示する
+
+            String format = ChatColor.GOLD + "%s " + ChatColor.GRAY + ": " +
+                ChatColor.WHITE + "%d " + ChatColor.GRAY + "+ %d seconds";
+            
+            sender.sendMessage(ChatColor.GRAY + "----- ExpTimer config list -----");
+            for ( String key : configs.keySet() ) {
+                int sec = configs.get(key).seconds;
+                int ready = configs.get(key).readySeconds;
+                String message = String.format(format, key, sec, ready);
+                sender.sendMessage(message);
+            }
+            sender.sendMessage(ChatColor.GRAY + "--------------------------------");
+
+            return true;
+
         } else if ( args[0].equalsIgnoreCase("reload") ) {
             // config.yml をリロードする
 
