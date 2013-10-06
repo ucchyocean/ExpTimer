@@ -215,6 +215,14 @@ public class ExpTimer extends JavaPlugin implements Listener {
         } else if ( args[0].equalsIgnoreCase("reload") ) {
             // config.yml をリロードする
 
+            if ( runnable != null ) {
+                sender.sendMessage(ChatColor.RED + 
+                        "実行中のタイマーがあるため、リロードできません！");
+                sender.sendMessage(ChatColor.RED + 
+                        "先に /" + label + " cancel を実行して、タイマーを終了してください。");
+                return true;
+            }
+            
             reloadConfigData();
             sender.sendMessage(ChatColor.GRAY + "config.yml をリロードしました。");
             return true;
