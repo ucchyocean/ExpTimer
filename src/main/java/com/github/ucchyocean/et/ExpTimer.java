@@ -7,6 +7,7 @@ package com.github.ucchyocean.et;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,6 +36,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
     protected static ETConfigData config;
     protected static HashMap<String, ETConfigData> configs;
     private String currentConfigName;
+    private CommandSender currentCommandSender;
 
     /**
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -121,7 +123,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 // configからメッセージのリロード
                 Messages.initialize(config.messageFileName);
 
-                startNewTask(null);
+                startNewTask(null, sender);
                 sender.sendMessage(ChatColor.GRAY + "タイマーを新規に開始しました。");
                 return true;
 
@@ -276,14 +278,18 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
     /**
      * 新しいタスクを開始する
-     * @param configName コンフィグ名、nullならそのままconfigを変更せずにタスクを開始する
+     * @param configName コンフィグ名。nullならそのままconfigを変更せずにタスクを開始する
+     * @param sender コマンド実行者。nullならcurrentCommandSenderがそのまま引き継がれる
      */
-    protected void startNewTask(String configName) {
+    public void startNewTask(String configName, CommandSender sender) {
 
         if ( configName != null && configs.containsKey(configName) ) {
             config = configs.get(configName).clone();
             Messages.initialize(config.messageFileName);
             currentConfigName = configName;
+        }
+        if ( sender != null ) {
+            currentCommandSender = sender;
         }
         runnable = new TimerTask(this, config.readySeconds, config.seconds);
         task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
@@ -292,9 +298,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
     /**
      * 現在実行中のタスクを中断する。終了時のコマンドは実行されない。
      */
-    protected void cancelTask() {
+    public void cancelTask() {
 
         if ( runnable != null ) {
+            // タスクを終了する
             getServer().getScheduler().cancelTask(task.getTaskId());
             runnable = null;
             task = null;
@@ -308,18 +315,11 @@ public class ExpTimer extends JavaPlugin implements Listener {
     /**
      * 現在実行中のタスクを終了コマンドを実行してから終了する
      */
-    protected void endTask() {
+    public void endTask() {
 
         if ( runnable != null ) {
-
-            // 終了コマンドの実行
-            for ( String c : config.commandsOnEnd ) {
-                if ( c.startsWith("/") ) {
-                    c = c.substring(1); // スラッシュ削除
-                }
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), c);
-            }
-
+            // 終了コマンドを実行してタスクを終了する
+            dispatchCommands(config.commandsOnEnd);
             getServer().getScheduler().cancelTask(task.getTaskId());
             runnable = null;
             task = null;
@@ -352,6 +352,29 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     protected static File getPluginJarFile() {
         return instance.getFile();
+    }
+    
+    /**
+     * 指定されたコマンドをまとめて実行する。
+     * @param commands コマンド
+     */
+    protected void dispatchCommands(List<String> commands) {
+        
+        // CommandSender を取得する
+        CommandSender sender = Bukkit.getConsoleSender();
+        if ( ExpTimer.config != null && 
+                !ExpTimer.config.forceEmulateConsoleCommand &&
+                currentCommandSender != null ) {
+            sender = currentCommandSender;
+        }
+        
+        // コマンド実行
+        for ( String command : commands ) {
+            if ( command.startsWith("/") ) {
+                command = command.substring(1); // スラッシュ削除
+            }
+            Bukkit.dispatchCommand(sender, command);
+        }
     }
 
     /**

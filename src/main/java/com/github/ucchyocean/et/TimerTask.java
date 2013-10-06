@@ -5,7 +5,6 @@
  */
 package com.github.ucchyocean.et;
 
-import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -107,7 +106,7 @@ public class TimerTask extends BukkitRunnable {
                     playPong();
                 }
                 // コマンドの実行
-                dispatchCommands(ExpTimer.config.commandsOnStart);
+                plugin.dispatchCommands(ExpTimer.config.commandsOnStart);
             }
         } else if ( !flagEnd ) {
             if ( !flagRest300sec && secondsGameRest <= 300 ) {
@@ -137,7 +136,7 @@ public class TimerTask extends BukkitRunnable {
                     playPong();
                 }
                 // コマンドの実行
-                dispatchCommands(ExpTimer.config.commandsOnEnd);
+                plugin.dispatchCommands(ExpTimer.config.commandsOnEnd);
             }
         }
 
@@ -153,7 +152,7 @@ public class TimerTask extends BukkitRunnable {
             // リピート設定なら、新しいタスクを再スケジュール
             if ( ExpTimer.config.nextConfig != null &&
                     ExpTimer.configs.containsKey(ExpTimer.config.nextConfig) ) {
-                plugin.startNewTask(ExpTimer.config.nextConfig);
+                plugin.startNewTask(ExpTimer.config.nextConfig, null);
             }
         }
     }
@@ -272,22 +271,6 @@ public class TimerTask extends BukkitRunnable {
      */
     public int getSecondsGameRest() {
         return secondsGameRest;
-    }
-    
-    /**
-     * 指定されたコマンドをまとめて実行する。コマンドはコンソールで実行される。
-     * @param commands コマンド
-     */
-    private void dispatchCommands(List<String> commands) {
-        
-        for ( String command : commands ) {
-            if ( command.startsWith("/") ) {
-                command = command.substring(1); // スラッシュ削除
-            }
-            Bukkit.dispatchCommand(
-                    Bukkit.getConsoleSender(),
-                    command);
-        }
     }
     
     /**

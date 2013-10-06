@@ -45,6 +45,9 @@ public class ETConfigData {
 
     /** 次に自動で実行するタスクのコンフィグ名 */
     protected String nextConfig;
+    
+    /** コンソールでの実行エミュレートを強制するかどうか */
+    protected boolean forceEmulateConsoleCommand;
 
     /** ColorTeamingのチームが全滅したら、タイマーを終了するかどうか */
     protected boolean endWithCTTeamDefeat;
@@ -81,6 +84,7 @@ public class ETConfigData {
             data.useExpBar = section.getBoolean("useExpBar", true);
             data.messageFileName = section.getString("messageFileName");
             data.nextConfig = section.getString("nextConfig");
+            data.forceEmulateConsoleCommand = section.getBoolean("forceEmulateConsoleCommand", false);
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
             data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
@@ -99,6 +103,8 @@ public class ETConfigData {
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
             data.playSound = section.getBoolean("playSound", defaults.playSound);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
+            data.forceEmulateConsoleCommand = 
+                section.getBoolean("forceEmulateConsoleCommand", defaults.forceEmulateConsoleCommand);
             data.endWithCTTeamDefeat =
                 section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
             data.endWithCTLeaderDefeat =
@@ -138,6 +144,7 @@ public class ETConfigData {
         data.useExpBar = this.useExpBar;
         data.messageFileName = this.messageFileName;
         data.nextConfig = this.nextConfig;
+        data.forceEmulateConsoleCommand = this.forceEmulateConsoleCommand;
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
         data.endWithCTLeaderDefeat = this.endWithCTLeaderDefeat;
         data.endWithCTKillTrophy = this.endWithCTKillTrophy;
