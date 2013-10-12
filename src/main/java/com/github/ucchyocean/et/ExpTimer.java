@@ -398,7 +398,18 @@ public class ExpTimer extends JavaPlugin implements Listener {
             if ( command.startsWith("/") ) {
                 command = command.substring(1); // スラッシュ削除
             }
-            Bukkit.dispatchCommand(sender, command);
+            
+            // @aがコマンドに含まれている場合は、展開して実行する。
+            // 含まれていないならそのまま実行する。
+            if ( command.contains(" @a ") ) {
+                Player[] players = Bukkit.getOnlinePlayers();
+                for ( Player p : players ) {
+                    Bukkit.dispatchCommand(sender, 
+                            command.replaceAll(" @a ", " " + p.getName() + " "));
+                }
+            } else {
+                Bukkit.dispatchCommand(sender, command);
+            }
         }
     }
 
