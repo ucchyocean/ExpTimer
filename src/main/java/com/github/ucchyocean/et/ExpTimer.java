@@ -401,11 +401,11 @@ public class ExpTimer extends JavaPlugin implements Listener {
             
             // @aがコマンドに含まれている場合は、展開して実行する。
             // 含まれていないならそのまま実行する。
-            if ( command.contains(" @a ") ) {
+            if ( command.contains("@a") ) {
                 Player[] players = Bukkit.getOnlinePlayers();
                 for ( Player p : players ) {
                     Bukkit.dispatchCommand(sender, 
-                            command.replaceAll(" @a ", " " + p.getName() + " "));
+                            command.replaceAll("@a", p.getName()));
                 }
             } else {
                 Bukkit.dispatchCommand(sender, command);
