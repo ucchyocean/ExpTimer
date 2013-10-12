@@ -1,4 +1,4 @@
-# ExpTimer v2.2.2
+# ExpTimer v2.2.3
 # @author     ucchy
 # @license    LGPLv3
 # @copyright  Copyright ucchy 2013
@@ -20,7 +20,7 @@ ColorTeaming:
   seconds: 150
   readySeconds: 10
   commandsOnStart: ['rc', 'cclass all Knight', 'ctp all spawn']
-  commandsOnEnd: ['ctp all machiai', 'ct removeall']
+  commandsOnEnd: ['tp @a 0 65 0', 'clear @a', 'ct removeall']
   countdownOnStart: 3
   countdownOnEnd: 5
   playSound: true
@@ -39,7 +39,7 @@ Timer2:
   seconds: 1200
   readySeconds: 10
   commandsOnStart: ['say server open!', 'whitelist off']
-  commandsOnEnd: ['say game over!', 'whitelist on']
+  commandsOnEnd: ['say game over!', 'kick @a', 'whitelist on']
   countdownOnStart: 5
   countdownOnEnd: 10
   playSound: false
