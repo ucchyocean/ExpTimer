@@ -22,9 +22,13 @@ commandsOnStart - タイマー開始時に実行するコマンド<br />
 　　例）commandsOnStart: ['say スタート！！がんばってくださいね！', 'tpa 100 65 100']<br />
 commandsOnEnd - タイマー終了時に実行するコマンド<br />
 　　例）commandsOnEnd: ['say 終了！！お疲れ様でした！', 'tpa 0 65 0']<br />
+consoleCommandsOnStart - タイマー開始時にコンソールから実行するコマンド<br />
+consoleCommandsOnEnd - タイマー終了時にコンソールから実行するコマンド<br />
 countdownOnStart - スタート前のカウントダウンを開始する秒数<br />
 　　例えば、「countdownOnStart: 15」とした場合、15秒前からカウントダウンを実行する。<br />
 countdownOnEnd - 終了前のカウントダウンを開始する秒数<br />
+restAlertSeconds - 残り時間アラートを行う時間<br />
+　　対応するメッセージが messages.yml に登録されていないと、アラートが行われないことに注意<br />
 playSound - カウントダウン中に音を出すかどうか<br />
 useExpBar - 経験値バーおよび経験値レベルをタイマーとして使うかどうか<br />
 endWithCTTeamDefeat - ColorTeamingのチームが全滅したら、タイマーを終了するかどうか<br />
@@ -37,9 +41,4 @@ nextConfig - タイマーが終了した後に、次に自動で実行するタ�
 　　自分自身のコンフィグ名を指定することで、そのコンフィグを永遠にループさせることが可能です。<br />
 messageFileName - タイマーのメッセージファイル名。指定例） messageFileName: 'messages_test.yml'<br />
 　　未指定の場合は、デフォルトの「messages.yml」が使用されます。<br />
-forceEmulateConsoleCommand - コンソールでの実行エミュレートを強制するかどうか<br />
-　　未指定の場合は false で、/timer start を実行した人<br />
-　　（ゲーム内から実行した場合はそのプレイヤー、コンソールから実行した場合はコンソール）で<br />
-　　コマンドが実行エミュレートされます。<br />
-　　この設定に true を設定すると、コマンドは全てコンソールから実行されます。<br />
 </p>
