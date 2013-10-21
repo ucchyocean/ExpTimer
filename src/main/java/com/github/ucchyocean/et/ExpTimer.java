@@ -101,9 +101,11 @@ public class ExpTimer extends JavaPlugin implements Listener {
             if ( runnable == null ) {
 
                 if ( args.length == 1 ) {
+                    currentConfigName = "default";
                     config = configs.get("default").clone();
                 } else if ( args.length >= 2 ) {
                     if ( args[1].matches("^[0-9]+$") ) {
+                        currentConfigName = "default";
                         config = configs.get("default").clone();
                         config.seconds = Integer.parseInt(args[1]);
                         if ( args.length >= 3 && args[2].matches("^[0-9]+$")) {
@@ -115,6 +117,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
                                     String.format("設定 %s が見つかりません！", args[1]));
                             return true;
                         }
+                        currentConfigName = args[1];
                         config = configs.get(args[1]).clone();
                     }
                 }
@@ -203,9 +206,15 @@ public class ExpTimer extends JavaPlugin implements Listener {
             for ( String com : config.commandsOnStart ) {
                 sender.sendMessage(ChatColor.WHITE + "  " + com);
             }
+            for ( String com : config.consoleCommandsOnStart ) {
+                sender.sendMessage(ChatColor.AQUA + "  " + com);
+            }
             sender.sendMessage(ChatColor.GRAY + "終了時に実行するコマンド：");
             for ( String com : config.commandsOnEnd ) {
                 sender.sendMessage(ChatColor.WHITE + "  " + com);
+            }
+            for ( String com : config.consoleCommandsOnEnd ) {
+                sender.sendMessage(ChatColor.AQUA + "  " + com);
             }
             sender.sendMessage(ChatColor.GRAY + "--------------------------------");
 
