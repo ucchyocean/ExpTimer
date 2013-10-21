@@ -8,6 +8,8 @@ default:
   readySeconds: 10
   commandsOnStart: []
   commandsOnEnd: []
+  consoleCommandsOnStart: []
+  consoleCommandsOnEnd: []
   countdownOnStart: 3
   countdownOnEnd: 5
   playSound: true
@@ -19,8 +21,10 @@ default:
 ColorTeaming:
   seconds: 150
   readySeconds: 10
-  commandsOnStart: ['rc', 'cclass all Knight', 'ctp all spawn']
-  commandsOnEnd: ['tp @a 0 65 0', 'clear @a', 'ct removeall']
+  commandsOnEnd: ['say Battle Start!!']
+  consoleCommandsOnStart: ['rc', 'cclass all Knight', 'ctp all spawn']
+  commandsOnEnd: ['say Battle End!!']
+  consoleCommandsOnEnd: ['tp @a 0 65 0', 'clear @a', 'ct removeall']
   countdownOnStart: 3
   countdownOnEnd: 5
   playSound: true
@@ -38,8 +42,10 @@ Timer1:
 Timer2:
   seconds: 1200
   readySeconds: 10
-  commandsOnStart: ['say server open!', 'whitelist off']
-  commandsOnEnd: ['say game over!', 'kick @a', 'whitelist on']
+  commandsOnStart: ['say server open!']
+  consoleCommandsOnStart: ['whitelist off']
+  commandsOnEnd: ['say game over!']
+  consoleCommandsOnEnd: ['kick @a', 'whitelist on']
   countdownOnStart: 5
   countdownOnEnd: 10
   playSound: false

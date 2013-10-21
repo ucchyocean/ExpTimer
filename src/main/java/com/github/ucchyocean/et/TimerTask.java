@@ -106,7 +106,8 @@ public class TimerTask extends BukkitRunnable {
                     playPong();
                 }
                 // コマンドの実行
-                plugin.dispatchCommands(ExpTimer.config.commandsOnStart);
+                plugin.dispatchCommandsBySender(ExpTimer.config.commandsOnStart);
+                plugin.dispatchCommandsByConsole(ExpTimer.config.consoleCommandsOnStart);
             }
         } else if ( !flagEnd ) {
             if ( !flagRest300sec && secondsGameRest <= 300 ) {
@@ -136,7 +137,8 @@ public class TimerTask extends BukkitRunnable {
                     playPong();
                 }
                 // コマンドの実行
-                plugin.dispatchCommands(ExpTimer.config.commandsOnEnd);
+                plugin.dispatchCommandsBySender(ExpTimer.config.commandsOnEnd);
+                plugin.dispatchCommandsByConsole(ExpTimer.config.consoleCommandsOnEnd);
             }
         }
 

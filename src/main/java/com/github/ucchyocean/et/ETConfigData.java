@@ -28,6 +28,12 @@ public class ETConfigData {
     /** タイマー終了時に実行するコマンド */
     protected List<String> commandsOnEnd;
 
+    /** タイマースタート時にコンソールで実行するコマンド */
+    protected List<String> consoleCommandsOnStart;
+
+    /** タイマー終了時にコンソールで実行するコマンド */
+    protected List<String> consoleCommandsOnEnd;
+
     /** タイマースタート前のカウントダウン時間（秒） */
     protected int countdownOnStart;
 
@@ -45,9 +51,6 @@ public class ETConfigData {
 
     /** 次に自動で実行するタスクのコンフィグ名 */
     protected String nextConfig;
-    
-    /** コンソールでの実行エミュレートを強制するかどうか */
-    protected boolean forceEmulateConsoleCommand;
 
     /** ColorTeamingのチームが全滅したら、タイマーを終了するかどうか */
     protected boolean endWithCTTeamDefeat;
@@ -78,13 +81,20 @@ public class ETConfigData {
             if ( data.commandsOnEnd == null ) {
                 data.commandsOnEnd = new ArrayList<String>();
             }
+            data.consoleCommandsOnStart = section.getStringList("consoleCommandsOnStart");
+            if ( data.consoleCommandsOnStart == null ) {
+                data.consoleCommandsOnStart = new ArrayList<String>();
+            }
+            data.consoleCommandsOnEnd = section.getStringList("consoleCommandsOnEnd");
+            if ( data.consoleCommandsOnEnd == null ) {
+                data.consoleCommandsOnEnd = new ArrayList<String>();
+            }
             data.countdownOnStart = section.getInt("countdownOnStart", 3);
             data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
             data.playSound = section.getBoolean("playSound", true);
             data.useExpBar = section.getBoolean("useExpBar", true);
             data.messageFileName = section.getString("messageFileName");
             data.nextConfig = section.getString("nextConfig");
-            data.forceEmulateConsoleCommand = section.getBoolean("forceEmulateConsoleCommand", false);
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
             data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
@@ -99,12 +109,18 @@ public class ETConfigData {
                 data.commandsOnEnd = section.getStringList("commandsOnEnd");
             else
                 data.commandsOnEnd = copyList(defaults.commandsOnEnd);
+            if ( section.contains("consoleCommandsOnStart") )
+                data.consoleCommandsOnStart = section.getStringList("consoleCommandsOnStart");
+            else
+                data.consoleCommandsOnStart = copyList(defaults.consoleCommandsOnStart);
+            if ( section.contains("consoleCommandsOnEnd") )
+                data.consoleCommandsOnEnd = section.getStringList("consoleCommandsOnEnd");
+            else
+                data.consoleCommandsOnEnd = copyList(defaults.consoleCommandsOnEnd);
             data.countdownOnStart = section.getInt("countdownOnStart", defaults.countdownOnStart);
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
             data.playSound = section.getBoolean("playSound", defaults.playSound);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
-            data.forceEmulateConsoleCommand = 
-                section.getBoolean("forceEmulateConsoleCommand", defaults.forceEmulateConsoleCommand);
             data.endWithCTTeamDefeat =
                 section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
             data.endWithCTLeaderDefeat =
@@ -138,13 +154,20 @@ public class ETConfigData {
         for ( String c : this.commandsOnEnd ) {
             data.commandsOnEnd.add(c);
         }
+        data.consoleCommandsOnStart = new ArrayList<String>();
+        for ( String c : this.consoleCommandsOnStart ) {
+            data.consoleCommandsOnStart.add(c);
+        }
+        data.consoleCommandsOnEnd = new ArrayList<String>();
+        for ( String c : this.consoleCommandsOnEnd ) {
+            data.consoleCommandsOnEnd.add(c);
+        }
         data.countdownOnStart = this.countdownOnStart;
         data.countdownOnEnd = this.countdownOnEnd;
         data.playSound = this.playSound;
         data.useExpBar = this.useExpBar;
         data.messageFileName = this.messageFileName;
         data.nextConfig = this.nextConfig;
-        data.forceEmulateConsoleCommand = this.forceEmulateConsoleCommand;
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
         data.endWithCTLeaderDefeat = this.endWithCTLeaderDefeat;
         data.endWithCTKillTrophy = this.endWithCTKillTrophy;

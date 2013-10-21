@@ -344,7 +344,8 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
         if ( runnable != null ) {
             // 終了コマンドを実行してタスクを終了する
-            dispatchCommands(config.commandsOnEnd);
+            dispatchCommandsBySender(config.commandsOnEnd);
+            dispatchCommandsByConsole(config.consoleCommandsOnEnd);
             getServer().getScheduler().cancelTask(task.getTaskId());
             runnable = null;
             task = null;
@@ -380,20 +381,36 @@ public class ExpTimer extends JavaPlugin implements Listener {
     }
     
     /**
-     * 指定されたコマンドをまとめて実行する。
+     * キャッシュされているCommandSenderで、指定されたコマンドをまとめて実行する。
      * @param commands コマンド
      */
-    protected void dispatchCommands(List<String> commands) {
+    protected void dispatchCommandsBySender(List<String> commands) {
         
         // CommandSender を取得する
         CommandSender sender = Bukkit.getConsoleSender();
-        if ( ExpTimer.config != null && 
-                !ExpTimer.config.forceEmulateConsoleCommand &&
-                currentCommandSender != null ) {
+        if ( ExpTimer.config != null  && currentCommandSender != null ) {
             sender = currentCommandSender;
         }
         
         // コマンド実行
+        dispatchCommands(sender, commands);
+    }
+    
+    /**
+     * コンソールで、指定されたコマンドをまとめて実行する。
+     * @param commands コマンド
+     */
+    protected void dispatchCommandsByConsole(List<String> commands) {
+        dispatchCommands(Bukkit.getConsoleSender(), commands);
+    }
+    
+    /**
+     * 指定されたコマンドをまとめて実行する。
+     * @param sender コマンドを実行する人
+     * @param commands コマンド
+     */
+    private void dispatchCommands(CommandSender sender, List<String> commands) {
+        
         for ( String command : commands ) {
             if ( command.startsWith("/") ) {
                 command = command.substring(1); // スラッシュ削除
