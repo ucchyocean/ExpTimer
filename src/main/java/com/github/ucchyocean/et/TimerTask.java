@@ -96,14 +96,14 @@ public class TimerTask extends BukkitRunnable {
                 // スタート前のカウントダウン
                 broadcastMessage("preStartSec", secondsReadyRest);
                 if ( ExpTimer.config.playSound ) {
-                    playPing();
+                    playCountdownSound();
                 }
             } else {
                 // スタート
                 flagStart = true;
                 broadcastMessage("start");
                 if ( ExpTimer.config.playSound ) {
-                    playPong();
+                    playStartEndSound();
                 }
                 // コマンドの実行
                 plugin.dispatchCommandsBySender(ExpTimer.config.commandsOnStart);
@@ -127,14 +127,14 @@ public class TimerTask extends BukkitRunnable {
                 // 終了前のカウントダウン
                 broadcastMessage("preEndSec", secondsGameRest);
                 if ( ExpTimer.config.playSound ) {
-                    playPing();
+                    playCountdownSound();
                 }
             } else if ( secondsGameRest <= 0 ) {
                 // 終了
                 flagEnd = true;
                 broadcastMessage("end");
                 if ( ExpTimer.config.playSound ) {
-                    playPong();
+                    playStartEndSound();
                 }
                 // コマンドの実行
                 plugin.dispatchCommandsBySender(ExpTimer.config.commandsOnEnd);
@@ -293,20 +293,48 @@ public class TimerTask extends BukkitRunnable {
     /**
      * カウントダウンの音を出す
      */
-    private void playPing() {
+    private void playCountdownSound() {
         
+        String name = ExpTimer.config.playSoundCountdown;
+        Sound sound;
+        if ( isValidSoundName(name) ) {
+            sound = Sound.valueOf(name);
+        } else {
+            sound = Sound.NOTE_STICKS;
+        }
         for ( Player player : Bukkit.getOnlinePlayers() ) {
-            player.playSound(player.getEyeLocation(), Sound.NOTE_STICKS, 1.0F, 1.0F);
+            player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
         }
     }
     
     /**
-     * カウントダウンからの開始音を出す
+     * 開始音・終了音を出す
      */
-    private void playPong() {
+    private void playStartEndSound() {
         
-        for ( Player player : Bukkit.getOnlinePlayers() ) {
-            player.playSound(player.getEyeLocation(), Sound.NOTE_PLING, 1.0F, 1.0F);
+        String name = ExpTimer.config.playSoundStartEnd;
+        Sound sound;
+        if ( isValidSoundName(name) ) {
+            sound = Sound.valueOf(name);
+        } else {
+            sound = Sound.NOTE_PLING;
         }
+        for ( Player player : Bukkit.getOnlinePlayers() ) {
+            player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
+        }
+    }
+    
+    /**
+     * 指定された名前は、Soundクラスに含まれているか、確認する
+     * @param name サウンド名
+     * @return Soundクラスに含まれているかどうか
+     */
+    private boolean isValidSoundName(String name) {
+        for ( Sound s : Sound.values() ) {
+            if ( s.name().equals(name) ) {
+                return true;
+            }
+        }
+        return false;
     }
 }

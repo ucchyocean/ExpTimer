@@ -79,8 +79,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
         // タスクが残ったままなら、強制終了しておく。
         if ( runnable != null ) {
             getLogger().warning("タイマーが残ったままです。強制終了します。");
-            getServer().getScheduler().cancelTask(task.getTaskId());
-            runnable = null;
+            cancelTask();
         }
     }
 
@@ -330,10 +329,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
             getServer().getScheduler().cancelTask(task.getTaskId());
             runnable = null;
             task = null;
-        }
-        
-        if ( ExpTimer.config.useExpBar ) {
-            ExpTimer.setExpLevel(0, 1);
+            
+            if ( ExpTimer.config.useExpBar ) {
+                ExpTimer.setExpLevel(0, 1);
+            }
         }
     }
 
@@ -346,13 +345,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
             // 終了コマンドを実行してタスクを終了する
             dispatchCommandsBySender(config.commandsOnEnd);
             dispatchCommandsByConsole(config.consoleCommandsOnEnd);
-            getServer().getScheduler().cancelTask(task.getTaskId());
-            runnable = null;
-            task = null;
-        }
-        
-        if ( ExpTimer.config.useExpBar ) {
-            ExpTimer.setExpLevel(0, 1);
+            cancelTask();
         }
     }
 

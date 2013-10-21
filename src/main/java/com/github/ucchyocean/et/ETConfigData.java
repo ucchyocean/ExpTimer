@@ -43,6 +43,12 @@ public class ETConfigData {
     /** カウントダウン中に音を出すかどうか */
     protected boolean playSound;
     
+    /** カウントダウン時の音の種類（隠しオプション） */
+    protected String playSoundCountdown;
+    
+    /** スタート時・終了時の音の種類（隠しオプション） */
+    protected String playSoundStartEnd;
+    
     /** 経験値バーをタイマー表示として使用するかどうか */
     protected boolean useExpBar;
 
@@ -92,6 +98,8 @@ public class ETConfigData {
             data.countdownOnStart = section.getInt("countdownOnStart", 3);
             data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
             data.playSound = section.getBoolean("playSound", true);
+            data.playSoundCountdown = section.getString("playSoundCountdown", "NOTE_STICKS");
+            data.playSoundStartEnd = section.getString("playSoundStartEnd", "NOTE_PLING");
             data.useExpBar = section.getBoolean("useExpBar", true);
             data.messageFileName = section.getString("messageFileName");
             data.nextConfig = section.getString("nextConfig");
@@ -120,6 +128,10 @@ public class ETConfigData {
             data.countdownOnStart = section.getInt("countdownOnStart", defaults.countdownOnStart);
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
             data.playSound = section.getBoolean("playSound", defaults.playSound);
+            data.playSoundCountdown = 
+                section.getString("playSoundCountdown", defaults.playSoundCountdown);
+            data.playSoundStartEnd = 
+                section.getString("playSoundStartEnd", defaults.playSoundStartEnd);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
             data.endWithCTTeamDefeat =
                 section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
@@ -165,6 +177,8 @@ public class ETConfigData {
         data.countdownOnStart = this.countdownOnStart;
         data.countdownOnEnd = this.countdownOnEnd;
         data.playSound = this.playSound;
+        data.playSoundCountdown = this.playSoundCountdown;
+        data.playSoundStartEnd = this.playSoundStartEnd;
         data.useExpBar = this.useExpBar;
         data.messageFileName = this.messageFileName;
         data.nextConfig = this.nextConfig;
