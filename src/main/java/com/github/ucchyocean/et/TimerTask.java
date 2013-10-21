@@ -5,6 +5,8 @@
  */
 package com.github.ucchyocean.et;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -45,10 +47,10 @@ public class TimerTask extends BukkitRunnable {
     private long tickReadyBase;
     private long tickGameBase;
 
+    private ArrayList<Integer> restAlertSeconds;
+
     private boolean flagStart;
-    private boolean flagRest300sec;
-    private boolean flagRest180sec;
-    private boolean flagRest60sec;
+    private boolean[] alertFlags;
     private boolean flagEnd;
 
     // このタイマーが一時停止されているかどうか
@@ -61,23 +63,34 @@ public class TimerTask extends BukkitRunnable {
      * @param secondsReady タイマー開始までの設定時間
      * @param secondsGame タイマーの設定時間
      */
-    public TimerTask(ExpTimer plugin, int secondsReady, int secondsGame) {
+    public TimerTask(ExpTimer plugin) {
 
         this.plugin = plugin;
-        secondsReadyRest = secondsReady;
-        secondsGameRest = secondsGame;
-        secondsGameMax = secondsGame;
+        ETConfigData config = ExpTimer.config;
+
+        secondsReadyRest = config.readySeconds;
+        secondsGameRest = config.seconds;
+        secondsGameMax = config.seconds;
         isPaused = false;
 
         tickReadyBase = System.currentTimeMillis() +
-            secondsReady * 1000 + OFFSET;
-        tickGameBase = tickReadyBase + secondsGame * 1000;
+                config.readySeconds * 1000 + OFFSET;
+        tickGameBase = tickReadyBase + config.seconds * 1000;
 
         flagStart = false;
-        flagRest300sec = ( secondsGameMax <= 300 );
-        flagRest180sec = ( secondsGameMax <= 180 );
-        flagRest60sec = ( secondsGameMax <= 60 );
         flagEnd = false;
+        
+        restAlertSeconds = new ArrayList<Integer>();
+        for ( Integer i : config.restAlertSeconds ) {
+            restAlertSeconds.add(i);
+        }
+        Collections.sort(restAlertSeconds);
+        Collections.reverse(restAlertSeconds);
+        
+        alertFlags = new boolean[restAlertSeconds.size()];
+        for ( int i=0; i<alertFlags.length; i++ ) {
+            alertFlags[i] = ( secondsGameMax <= restAlertSeconds.get(i) );
+        }
     }
 
     /**
@@ -92,6 +105,7 @@ public class TimerTask extends BukkitRunnable {
         // 条件に応じてアナウンス
         if ( !flagStart &&
                 secondsReadyRest <= ExpTimer.config.countdownOnStart ) {
+
             if ( secondsReadyRest > 0 ) {
                 // スタート前のカウントダウン
                 broadcastMessage("preStartSec", secondsReadyRest);
@@ -106,23 +120,28 @@ public class TimerTask extends BukkitRunnable {
                     playStartEndSound();
                 }
                 // コマンドの実行
-                plugin.dispatchCommandsBySender(ExpTimer.config.commandsOnStart);
-                plugin.dispatchCommandsByConsole(ExpTimer.config.consoleCommandsOnStart);
+                plugin.dispatchCommandsBySender(
+                        ExpTimer.config.commandsOnStart);
+                plugin.dispatchCommandsByConsole(
+                        ExpTimer.config.consoleCommandsOnStart);
             }
+            
         } else if ( !flagEnd ) {
-            if ( !flagRest300sec && secondsGameRest <= 300 ) {
-                // 残り5分
-                flagRest300sec = true;
-                broadcastMessage("rest300sec");
-            } else if ( !flagRest180sec && secondsGameRest <= 180 ) {
-                // 残り3分
-                flagRest180sec = true;
-                broadcastMessage("rest180sec");
-            } else if ( !flagRest60sec && secondsGameRest <= 60 ) {
-                // 残り1分
-                flagRest60sec = true;
-                broadcastMessage("rest60sec");
-            } else if ( 0 < secondsGameRest &&
+            
+            // 残りｎ分の告知処理
+            for ( int index=0; index<alertFlags.length; index++ ) {
+                if ( !alertFlags[index] 
+                        && secondsGameRest <= restAlertSeconds.get(index) ) {
+                    alertFlags[index] = true;
+                    String key = "rest" + restAlertSeconds.get(index) + "sec";
+                    broadcastMessage(key);
+                    break;
+                } else if ( secondsGameRest > restAlertSeconds.get(index) ) {
+                    break;
+                }
+            }
+            
+            if ( 0 < secondsGameRest &&
                     secondsGameRest <= ExpTimer.config.countdownOnEnd ) {
                 // 終了前のカウントダウン
                 broadcastMessage("preEndSec", secondsGameRest);
@@ -137,8 +156,10 @@ public class TimerTask extends BukkitRunnable {
                     playStartEndSound();
                 }
                 // コマンドの実行
-                plugin.dispatchCommandsBySender(ExpTimer.config.commandsOnEnd);
-                plugin.dispatchCommandsByConsole(ExpTimer.config.consoleCommandsOnEnd);
+                plugin.dispatchCommandsBySender(
+                        ExpTimer.config.commandsOnEnd);
+                plugin.dispatchCommandsByConsole(
+                        ExpTimer.config.consoleCommandsOnEnd);
             }
         }
 
@@ -215,6 +236,7 @@ public class TimerTask extends BukkitRunnable {
      * タイマーを一時停止状態から再開する
      */
     public void startFromPause() {
+
         if ( isPaused ) {
             isPaused = false;
             long current = System.currentTimeMillis();
@@ -282,6 +304,7 @@ public class TimerTask extends BukkitRunnable {
      * @return メッセージ
      */
     private void broadcastMessage(String key, Object... args) {
+
         String msg = Messages.get(key, args);
         if ( msg.equals("") ) {
             return;
@@ -330,6 +353,7 @@ public class TimerTask extends BukkitRunnable {
      * @return Soundクラスに含まれているかどうか
      */
     private boolean isValidSoundName(String name) {
+
         for ( Sound s : Sound.values() ) {
             if ( s.name().equals(name) ) {
                 return true;

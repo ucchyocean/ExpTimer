@@ -40,15 +40,18 @@ public class ETConfigData {
     /** タイマー終了前のカウントダウン時間（秒） */
     protected int countdownOnEnd;
 
+    /** 残り時間アラートの時間（秒） */
+    protected List<Integer> restAlertSeconds;
+
     /** カウントダウン中に音を出すかどうか */
     protected boolean playSound;
-    
+
     /** カウントダウン時の音の種類（隠しオプション） */
     protected String playSoundCountdown;
-    
+
     /** スタート時・終了時の音の種類（隠しオプション） */
     protected String playSoundStartEnd;
-    
+
     /** 経験値バーをタイマー表示として使用するかどうか */
     protected boolean useExpBar;
 
@@ -80,23 +83,20 @@ public class ETConfigData {
             data.seconds = section.getInt("seconds", 600);
             data.readySeconds = section.getInt("readySeconds", 10);
             data.commandsOnStart = section.getStringList("commandsOnStart");
-            if ( data.commandsOnStart == null ) {
-                data.commandsOnStart = new ArrayList<String>();
-            }
             data.commandsOnEnd = section.getStringList("commandsOnEnd");
-            if ( data.commandsOnEnd == null ) {
-                data.commandsOnEnd = new ArrayList<String>();
-            }
             data.consoleCommandsOnStart = section.getStringList("consoleCommandsOnStart");
-            if ( data.consoleCommandsOnStart == null ) {
-                data.consoleCommandsOnStart = new ArrayList<String>();
-            }
             data.consoleCommandsOnEnd = section.getStringList("consoleCommandsOnEnd");
-            if ( data.consoleCommandsOnEnd == null ) {
-                data.consoleCommandsOnEnd = new ArrayList<String>();
-            }
             data.countdownOnStart = section.getInt("countdownOnStart", 3);
             data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
+            if ( section.contains("restAlertSeconds") ) {
+                data.restAlertSeconds = section.getIntegerList("restAlertSeconds");
+            } else {
+                data.restAlertSeconds = new ArrayList<Integer>();
+                data.restAlertSeconds.add(60);
+                data.restAlertSeconds.add(180);
+                data.restAlertSeconds.add(300);
+            }
+            System.out.println("restAlertSeconds : " + data.restAlertSeconds); // TODO:debug
             data.playSound = section.getBoolean("playSound", true);
             data.playSoundCountdown = section.getString("playSoundCountdown", "NOTE_STICKS");
             data.playSoundStartEnd = section.getString("playSoundStartEnd", "NOTE_PLING");
@@ -112,21 +112,25 @@ public class ETConfigData {
             if ( section.contains("commandsOnStart") )
                 data.commandsOnStart = section.getStringList("commandsOnStart");
             else
-                data.commandsOnStart = copyList(defaults.commandsOnStart);
+                data.commandsOnStart = copyStringList(defaults.commandsOnStart);
             if ( section.contains("commandsOnEnd") )
                 data.commandsOnEnd = section.getStringList("commandsOnEnd");
             else
-                data.commandsOnEnd = copyList(defaults.commandsOnEnd);
+                data.commandsOnEnd = copyStringList(defaults.commandsOnEnd);
             if ( section.contains("consoleCommandsOnStart") )
                 data.consoleCommandsOnStart = section.getStringList("consoleCommandsOnStart");
             else
-                data.consoleCommandsOnStart = copyList(defaults.consoleCommandsOnStart);
+                data.consoleCommandsOnStart = copyStringList(defaults.consoleCommandsOnStart);
             if ( section.contains("consoleCommandsOnEnd") )
                 data.consoleCommandsOnEnd = section.getStringList("consoleCommandsOnEnd");
             else
-                data.consoleCommandsOnEnd = copyList(defaults.consoleCommandsOnEnd);
+                data.consoleCommandsOnEnd = copyStringList(defaults.consoleCommandsOnEnd);
             data.countdownOnStart = section.getInt("countdownOnStart", defaults.countdownOnStart);
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
+            if ( section.contains("restAlertSeconds") )
+                data.restAlertSeconds = section.getIntegerList("restAlertSeconds");
+            else
+                data.restAlertSeconds = copyIntegerList(defaults.restAlertSeconds);
             data.playSound = section.getBoolean("playSound", defaults.playSound);
             data.playSoundCountdown = 
                 section.getString("playSoundCountdown", defaults.playSoundCountdown);
@@ -176,6 +180,10 @@ public class ETConfigData {
         }
         data.countdownOnStart = this.countdownOnStart;
         data.countdownOnEnd = this.countdownOnEnd;
+        data.restAlertSeconds = new ArrayList<Integer>();
+        for ( Integer c : this.restAlertSeconds ) {
+            data.restAlertSeconds.add(c);
+        }
         data.playSound = this.playSound;
         data.playSoundCountdown = this.playSoundCountdown;
         data.playSoundStartEnd = this.playSoundStartEnd;
@@ -194,10 +202,24 @@ public class ETConfigData {
      * @param org オリジナル
      * @return コピー
      */
-    private static List<String> copyList(List<String> org) {
+    private static List<String> copyStringList(List<String> org) {
 
         ArrayList<String> data = new ArrayList<String>();
         for ( String d : org ) {
+            data.add(d);
+        }
+        return data;
+    }
+
+    /**
+     * List&gt;Integer&lt;のコピーを行う
+     * @param org オリジナル
+     * @return コピー
+     */
+    private static List<Integer> copyIntegerList(List<Integer> org) {
+
+        ArrayList<Integer> data = new ArrayList<Integer>();
+        for ( Integer d : org ) {
             data.add(d);
         }
         return data;

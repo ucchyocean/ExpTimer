@@ -315,7 +315,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( sender != null ) {
             currentCommandSender = sender;
         }
-        runnable = new TimerTask(this, config.readySeconds, config.seconds);
+        runnable = new TimerTask(this);
         task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
     }
 

@@ -107,6 +107,7 @@ public class ColorTeamingListener implements Listener {
      * @return メッセージ
      */
     private void broadcastMessage(String key, Object... args) {
+
         String prefix = Messages.get("prefix");
         String msg = Messages.get(key, args);
         if ( msg.equals("") ) {

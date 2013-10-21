@@ -12,6 +12,7 @@ default:
   consoleCommandsOnEnd: []
   countdownOnStart: 3
   countdownOnEnd: 5
+  restAlertSeconds: [60, 180, 300]
   playSound: true
   useExpBar: true
   endWithCTTeamDefeat: false
