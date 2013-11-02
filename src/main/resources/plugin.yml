@@ -1,6 +1,6 @@
 name: ExpTimer
 main: com.github.ucchyocean.et.ExpTimer
-version: 2.2.4
+version: 2.2.5
 author: ucchy
 description: 経験値バータイマー
 softdepend: [ColorTeaming]
