@@ -23,7 +23,7 @@ default:
 ColorTeaming:
   seconds: 150
   readySeconds: 10
-  commandsOnEnd: ['say Battle Start!!']
+  commandsOnStart: ['say Battle Start!!']
   consoleCommandsOnStart: ['rc', 'cclass all Knight', 'ctp all spawn']
   commandsOnEnd: ['say Battle End!!']
   consoleCommandsOnEnd: ['tp @a 0 65 0', 'clear @a', 'ct removeall']
