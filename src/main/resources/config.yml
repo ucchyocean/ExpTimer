@@ -15,6 +15,7 @@ default:
   restAlertSeconds: [60, 180, 300]
   playSound: true
   useExpBar: true
+  useSideBar: false
   endWithCTTeamDefeat: false
   endWithCTLeaderDefeat: false
   endWithCTKillTrophy: false
@@ -51,12 +52,14 @@ Timer2:
   countdownOnEnd: 10
   playSound: false
   useExpBar: false
+  useSideBar: true
 
 Timer3:
   seconds: 10
   readySeconds: 10
   countdownOnStart: 1
   countdownOnEnd: 1
+  useSideBar: true
 
 infiniteTimer:
   seconds: 20

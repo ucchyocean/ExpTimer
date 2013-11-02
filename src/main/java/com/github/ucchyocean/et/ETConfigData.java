@@ -54,6 +54,9 @@ public class ETConfigData {
 
     /** 経験値バーをタイマー表示として使用するかどうか */
     protected boolean useExpBar;
+    
+    /** サイドバーをタイマー表示として使用するかどうか */
+    protected boolean useSideBar;
 
     /** メッセージファイルのファイル名指定 */
     protected String messageFileName;
@@ -101,6 +104,7 @@ public class ETConfigData {
             data.playSoundCountdown = section.getString("playSoundCountdown", "NOTE_STICKS");
             data.playSoundStartEnd = section.getString("playSoundStartEnd", "NOTE_PLING");
             data.useExpBar = section.getBoolean("useExpBar", true);
+            data.useSideBar = section.getBoolean("useSideBar", false);
             data.messageFileName = section.getString("messageFileName");
             data.nextConfig = section.getString("nextConfig");
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
@@ -137,6 +141,7 @@ public class ETConfigData {
             data.playSoundStartEnd = 
                 section.getString("playSoundStartEnd", defaults.playSoundStartEnd);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
+            data.useSideBar = section.getBoolean("useSideBar", defaults.useSideBar);
             data.endWithCTTeamDefeat =
                 section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
             data.endWithCTLeaderDefeat =
@@ -188,6 +193,7 @@ public class ETConfigData {
         data.playSoundCountdown = this.playSoundCountdown;
         data.playSoundStartEnd = this.playSoundStartEnd;
         data.useExpBar = this.useExpBar;
+        data.useSideBar = this.useSideBar;
         data.messageFileName = this.messageFileName;
         data.nextConfig = this.nextConfig;
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;

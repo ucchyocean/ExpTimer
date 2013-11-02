@@ -334,11 +334,18 @@ public class ExpTimer extends JavaPlugin implements Listener {
     public void cancelTask() {
 
         if ( runnable != null ) {
+            
+            // サイドバーのクリア
+            if ( ExpTimer.config.useSideBar ) {
+                runnable.removeSidebar();
+            }
+
             // タスクを終了する
             getServer().getScheduler().cancelTask(task.getTaskId());
             runnable = null;
             task = null;
             
+            // 経験値バーのクリア
             if ( ExpTimer.config.useExpBar ) {
                 ExpTimer.setExpLevel(0, 1);
             }

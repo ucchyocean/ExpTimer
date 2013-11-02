@@ -10,9 +10,14 @@ import java.util.Collections;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 /**
  * タイマータスク
@@ -57,6 +62,12 @@ public class TimerTask extends BukkitRunnable {
     private boolean isPaused;
 
     private ExpTimer plugin;
+    
+    // スコアボードのオブジェクティブ
+    private Objective objective;
+    
+    // 現在表示中のサイドバーアイテム
+    private OfflinePlayer sidebarItem;
 
     /**
      * コンストラクタ
@@ -79,17 +90,36 @@ public class TimerTask extends BukkitRunnable {
 
         flagStart = false;
         flagEnd = false;
-        
+
         restAlertSeconds = new ArrayList<Integer>();
         for ( Integer i : config.restAlertSeconds ) {
             restAlertSeconds.add(i);
         }
         Collections.sort(restAlertSeconds);
         Collections.reverse(restAlertSeconds);
-        
+
         alertFlags = new boolean[restAlertSeconds.size()];
         for ( int i=0; i<alertFlags.length; i++ ) {
             alertFlags[i] = ( secondsGameMax <= restAlertSeconds.get(i) );
+        }
+
+        // objectiveの取得
+        if ( config.useSideBar ) {
+            Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+            
+            // 既にオブジェクティブがあるなら、いったんクリアする
+            objective = sb.getObjective("exptimer");
+            if ( objective != null ) {
+                objective.unregister();
+            }
+            
+            // 新しいオブジェクティブを作成する
+            objective = sb.registerNewObjective("exptimer", "dummy");
+            objective.setDisplayName("残り時間");
+            sidebarItem = null;
+            
+            // サイドバーに表示
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         }
     }
 
@@ -166,6 +196,11 @@ public class TimerTask extends BukkitRunnable {
         // 経験値バーの表示更新
         if ( ExpTimer.config.useExpBar ) {
             ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
+        }
+        
+        // サイドバーの表示更新
+        if ( ExpTimer.config.useSideBar ) {
+            refreshSidebar();
         }
 
         // 終了条件を満たす場合は、スケジュール解除
@@ -295,6 +330,50 @@ public class TimerTask extends BukkitRunnable {
      */
     public int getSecondsGameRest() {
         return secondsGameRest;
+    }
+    
+    /**
+     * サイドバー表示を更新する
+     */
+    private void refreshSidebar() {
+        
+        int hour = secondsGameRest / 3600;
+        int minute = (secondsGameRest - hour * 3600) / 60;
+        int second = secondsGameRest - hour * 3600 - minute * 60;
+        
+        String name = String.format(ChatColor.RED + "%02d:%02d:", hour, minute);
+        
+        if ( sidebarItem == null ) {
+            sidebarItem = Bukkit.getOfflinePlayer(name);
+        } else if ( !name.equals(sidebarItem.getName()) ) {
+            objective.getScore(sidebarItem).setScore(0);
+            Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+            sb.resetScores(sidebarItem);
+            sidebarItem = Bukkit.getOfflinePlayer(name);
+        }
+
+        objective.getScore(sidebarItem).setScore(second);
+    }
+    
+    /**
+     * サイドバーを非表示にする
+     */
+    protected void removeSidebar() {
+        
+        Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+        
+        if ( sidebarItem != null ) {
+            objective.getScore(sidebarItem).setScore(0);
+            sb.resetScores(sidebarItem);
+        }
+        sidebarItem = null;
+        
+        Objective sideObj = sb.getObjective(DisplaySlot.SIDEBAR);
+        if ( sideObj != null && sideObj.getName().equals("exptimer") ) {
+            sb.clearSlot(DisplaySlot.SIDEBAR);
+            sideObj.unregister();
+        }
+        objective = null;
     }
     
     /**
