@@ -89,6 +89,12 @@ public class ColorTeamingListener implements Listener {
 
         // タスク終了
         plugin.endTask();
+        
+        // リピート設定なら、新しいタスクを再スケジュール
+        if ( ExpTimer.config.nextConfig != null &&
+                ExpTimer.configs.containsKey(ExpTimer.config.nextConfig) ) {
+            plugin.startNewTask(ExpTimer.config.nextConfig, null);
+        }
     }
 
     /**
