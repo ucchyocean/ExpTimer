@@ -99,7 +99,6 @@ public class ETConfigData {
                 data.restAlertSeconds.add(180);
                 data.restAlertSeconds.add(300);
             }
-            System.out.println("restAlertSeconds : " + data.restAlertSeconds); // TODO:debug
             data.playSound = section.getBoolean("playSound", true);
             data.playSoundCountdown = section.getString("playSoundCountdown", "NOTE_STICKS");
             data.playSoundStartEnd = section.getString("playSoundStartEnd", "NOTE_PLING");
