@@ -29,6 +29,8 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public class ExpTimer extends JavaPlugin implements Listener {
 
+    private static final String PERMISSION_PREFIX = "exptimer.";
+    
     private static ExpTimer instance;
     private TimerTask runnable;
     private BukkitTask task;
@@ -98,6 +100,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( args[0].equalsIgnoreCase("start") ) {
             // タイマーをスタートする
 
+            String node = PERMISSION_PREFIX + "start";
+            if ( !sender.hasPermission(node) ) {
+                sender.sendMessage(ChatColor.RED + String.format(
+                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
+                return true;
+            }
+            
             if ( runnable == null ) {
 
                 if ( args.length == 1 ) {
@@ -143,6 +152,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         } else if ( args[0].equalsIgnoreCase("pause") ) {
             // タイマーを一時停止する
 
+            String node = PERMISSION_PREFIX + "pause";
+            if ( !sender.hasPermission(node) ) {
+                sender.sendMessage(ChatColor.RED + String.format(
+                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
+                return true;
+            }
+            
             if ( runnable == null ) {
                 sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
                 return true;
@@ -162,6 +178,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         } else if ( args[0].equalsIgnoreCase("end") ) {
             // タイマーを強制終了する
 
+            String node = PERMISSION_PREFIX + "end";
+            if ( !sender.hasPermission(node) ) {
+                sender.sendMessage(ChatColor.RED + String.format(
+                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
+                return true;
+            }
+            
             if ( runnable == null ) {
                 sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
                 return true;
@@ -177,6 +200,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         } else if ( args[0].equalsIgnoreCase("cancel") ) {
             // タイマーを強制終了する
 
+            String node = PERMISSION_PREFIX + "cancel";
+            if ( !sender.hasPermission(node) ) {
+                sender.sendMessage(ChatColor.RED + String.format(
+                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
+                return true;
+            }
+            
             if ( runnable == null ) {
                 sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
                 return true;
@@ -191,6 +221,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         } else if ( args[0].equalsIgnoreCase("status") ) {
             // ステータスを参照する
 
+            String node = PERMISSION_PREFIX + "status";
+            if ( !sender.hasPermission(node) ) {
+                sender.sendMessage(ChatColor.RED + String.format(
+                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
+                return true;
+            }
+            
             String stat;
             if ( runnable == null ) {
                 stat = "タイマー停止中";
@@ -223,6 +260,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         } else if ( args[0].equalsIgnoreCase("list") ) {
             // コンフィグ一覧を表示する
 
+            String node = PERMISSION_PREFIX + "list";
+            if ( !sender.hasPermission(node) ) {
+                sender.sendMessage(ChatColor.RED + String.format(
+                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
+                return true;
+            }
+            
             String format = ChatColor.GOLD + "%s " + ChatColor.GRAY + ": " +
                 ChatColor.WHITE + "%d " + ChatColor.GRAY + "+ %d seconds";
             
@@ -240,6 +284,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         } else if ( args[0].equalsIgnoreCase("reload") ) {
             // config.yml をリロードする
 
+            String node = PERMISSION_PREFIX + "reload";
+            if ( !sender.hasPermission(node) ) {
+                sender.sendMessage(ChatColor.RED + String.format(
+                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
+                return true;
+            }
+            
             if ( runnable != null ) {
                 sender.sendMessage(ChatColor.RED + 
                         "実行中のタイマーがあるため、リロードできません！");

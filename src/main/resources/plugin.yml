@@ -1,6 +1,6 @@
 name: ExpTimer
 main: com.github.ucchyocean.et.ExpTimer
-version: 2.2.5
+version: 2.2.6
 author: ucchy
 description: 経験値バータイマー
 softdepend: [ColorTeaming]
@@ -23,3 +23,35 @@ permissions:
   exptimer:
     description: 経験値バータイマーコマンドパーミッション
     default: op
+  exptimer.start:
+    description: startコマンドパーミッション
+    default: op
+  exptimer.pause:
+    description: pauseコマンドパーミッション
+    default: op
+  exptimer.cancel:
+    description: cancelコマンドパーミッション
+    default: op
+  exptimer.end:
+    description: endコマンドパーミッション
+    default: op
+  exptimer.status:
+    description: statusコマンドパーミッション
+    default: op
+  exptimer.list:
+    description: listコマンドパーミッション
+    default: op
+  exptimer.reload:
+    description: reloadコマンドパーミッション
+    default: op
+  exptimer.*:
+    children:
+      exptimer: true
+      exptimer.start: true
+      exptimer.pause: true
+      exptimer.cancel: true
+      exptimer.end: true
+      exptimer.status: true
+      exptimer.list: true
+      exptimer.reload: true
+    description: exptimerのサブノードの全パーミッション
