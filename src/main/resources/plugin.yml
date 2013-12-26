@@ -22,7 +22,7 @@ commands:
 permissions:
   exptimer:
     description: 経験値バータイマーコマンドパーミッション
-    default: op
+    default: true
   exptimer.start:
     description: startコマンドパーミッション
     default: op
