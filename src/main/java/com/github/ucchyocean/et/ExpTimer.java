@@ -35,8 +35,8 @@ public class ExpTimer extends JavaPlugin implements Listener {
     private TimerTask runnable;
     private BukkitTask task;
 
-    protected static ETConfigData config;
-    protected static HashMap<String, ETConfigData> configs;
+    protected static ExpTimerConfig config;
+    protected static HashMap<String, ExpTimerConfig> configs;
     private String currentConfigName;
     private CommandSender currentCommandSender;
 
@@ -61,13 +61,14 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
             Plugin temp = getServer().getPluginManager().getPlugin("ColorTeaming");
             String ctversion = temp.getDescription().getVersion();
-            if ( Utility.isUpperVersion(ctversion, "2.2.0") ) {
-                getLogger().info("ColorTeaming がロードされました。連携機能を有効にします。");
-                getServer().getPluginManager().registerEvents(
-                        new ColorTeamingListener(this), this);
+            if ( Utility.isUpperVersion(ctversion, "2.3.0") ) {
+                getLogger().info("ColorTeaming was loaded. " 
+                        + getDescription().getName() + " is in cooperation with ColorTeaming.");
+                ColorTeamingListener listener = new ColorTeamingListener(this);
+                getServer().getPluginManager().registerEvents(listener, this);
             } else {
-                getLogger().warning("ColorTeaming のバージョンが古いため、連携機能は無効になりました。");
-                getLogger().warning("連携機能を使用するには、ColorTeaming v2.2.0 以上が必要です。");
+                getLogger().warning("ColorTeaming was too old. The cooperation feature will be disabled.");
+                getLogger().warning("NOTE: Please use ColorTeaming v2.3.0 or later version.");
             }
         }
     }
@@ -315,11 +316,11 @@ public class ExpTimer extends JavaPlugin implements Listener {
         saveDefaultConfig();
         reloadConfig();
         FileConfiguration config = getConfig();
-        ExpTimer.configs = new HashMap<String, ETConfigData>();
+        ExpTimer.configs = new HashMap<String, ExpTimerConfig>();
 
         // デフォルトのデータ読み込み
         ConfigurationSection section = config.getConfigurationSection("default");
-        ETConfigData defaultData = ETConfigData.loadFromSection(section, null);
+        ExpTimerConfig defaultData = ExpTimerConfig.loadFromSection(section, null);
         ExpTimer.config = defaultData;
         ExpTimer.configs.put("default", defaultData);
         currentConfigName = "default";
@@ -330,7 +331,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 continue;
             }
             section = config.getConfigurationSection(key);
-            ETConfigData data = ETConfigData.loadFromSection(section, defaultData);
+            ExpTimerConfig data = ExpTimerConfig.loadFromSection(section, defaultData);
             ExpTimer.configs.put(key, data);
         }
     }

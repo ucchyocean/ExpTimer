@@ -14,7 +14,7 @@ import org.bukkit.configuration.ConfigurationSection;
  * コンフィグデータコンポーネント
  * @author ucchy
  */
-public class ETConfigData {
+public class ExpTimerConfig {
 
     /** タイマー時間（秒） */
     protected int seconds;
@@ -79,9 +79,9 @@ public class ETConfigData {
      * @param defaults デフォルトデータ
      * @return 作成されたETConfigData
      */
-    protected static ETConfigData loadFromSection(ConfigurationSection section, ETConfigData defaults) {
+    protected static ExpTimerConfig loadFromSection(ConfigurationSection section, ExpTimerConfig defaults) {
 
-        ETConfigData data = new ETConfigData();
+        ExpTimerConfig data = new ExpTimerConfig();
         if ( defaults == null ) {
             data.seconds = section.getInt("seconds", 600);
             data.readySeconds = section.getInt("readySeconds", 10);
@@ -161,9 +161,9 @@ public class ETConfigData {
      * @param org オリジナル
      * @return コピー
      */
-    protected ETConfigData clone() {
+    protected ExpTimerConfig clone() {
 
-        ETConfigData data = new ETConfigData();
+        ExpTimerConfig data = new ExpTimerConfig();
         data.seconds = this.seconds;
         data.readySeconds = this.readySeconds;
         data.commandsOnStart = new ArrayList<String>();

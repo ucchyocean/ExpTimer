@@ -17,6 +17,8 @@ import java.io.OutputStreamWriter;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
+import org.bukkit.ChatColor;
+
 /**
  * ユーティリティクラス
  * @author ucchy
@@ -37,6 +39,7 @@ public class Utility {
         FileOutputStream fos = null;
         BufferedReader reader = null;
         BufferedWriter writer = null;
+        JarFile jar = null;
 
         File parent = targetFile.getParentFile();
         if ( !parent.exists() ) {
@@ -44,7 +47,7 @@ public class Utility {
         }
 
         try {
-            JarFile jar = new JarFile(jarFile);
+            jar = new JarFile(jarFile);
             ZipEntry zipEntry = jar.getEntry(sourceFilePath);
             is = jar.getInputStream(zipEntry);
 
@@ -74,6 +77,13 @@ public class Utility {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            if ( jar != null ) {
+                try {
+                    jar.close();
+                } catch (IOException e) {
+                    // do nothing.
+                }
+            }
             if ( writer != null ) {
                 try {
                     writer.flush();
@@ -113,7 +123,8 @@ public class Utility {
      * @return 置き換え後の文字列
      */
     protected static String replaceColorCode(String source) {
-        return source.replaceAll("&([0-9a-fk-or])", "\u00A7$1");
+//        return source.replaceAll("&([0-9a-fk-or])", "\u00A7$1");
+        return ChatColor.translateAlternateColorCodes('&', source);
     }
 
     /**

@@ -77,7 +77,7 @@ public class TimerTask extends BukkitRunnable {
     public TimerTask(ExpTimer plugin) {
 
         this.plugin = plugin;
-        ETConfigData config = ExpTimer.config;
+        ExpTimerConfig config = ExpTimer.config;
 
         secondsReadyRest = config.readySeconds;
         secondsGameRest = config.seconds;
