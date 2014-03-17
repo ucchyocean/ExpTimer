@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
+import org.bukkit.Location;
+import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -21,7 +21,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 
 /**
  * 経験値タイマー
@@ -29,15 +28,11 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public class ExpTimer extends JavaPlugin implements Listener {
 
-    private static final String PERMISSION_PREFIX = "exptimer.";
-    
     private static ExpTimer instance;
-    private TimerTask runnable;
-    private BukkitTask task;
+    private TimerTask timer;
 
-    protected static ExpTimerConfig config;
-    protected static HashMap<String, ExpTimerConfig> configs;
-    private String currentConfigName;
+    protected ExpTimerConfigData configData;
+    protected HashMap<String, ExpTimerConfigData> configs;
     private CommandSender currentCommandSender;
 
     /**
@@ -51,8 +46,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
         // コンフィグのロード
         reloadConfigData();
 
-        // メッセージの初期化
-        Messages.initialize(null);
+        // コマンドの登録
+        ExpTimerCommand executor = new ExpTimerCommand(this);
+        getCommand("exptimer").setExecutor(executor);
+        getCommand("exptimer").setTabCompleter(executor);
 
         // イベントの登録
         getServer().getPluginManager().registerEvents(this, this);
@@ -62,7 +59,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
             Plugin temp = getServer().getPluginManager().getPlugin("ColorTeaming");
             String ctversion = temp.getDescription().getVersion();
             if ( Utility.isUpperVersion(ctversion, "2.3.0") ) {
-                getLogger().info("ColorTeaming was loaded. " 
+                getLogger().info("ColorTeaming was loaded. "
                         + getDescription().getName() + " is in cooperation with ColorTeaming.");
                 ColorTeamingListener listener = new ColorTeamingListener(this);
                 getServer().getPluginManager().registerEvents(listener, this);
@@ -80,232 +77,10 @@ public class ExpTimer extends JavaPlugin implements Listener {
     public void onDisable() {
 
         // タスクが残ったままなら、強制終了しておく。
-        if ( runnable != null ) {
+        if ( timer != null ) {
             getLogger().warning("タイマーが残ったままです。強制終了します。");
             cancelTask();
         }
-    }
-
-    /**
-     * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
-     */
-    @Override
-    public boolean onCommand(
-            CommandSender sender, Command command, String label, String[] args) {
-
-        // 引数がない場合は実行しない
-        if ( args.length <= 0 ) {
-            return false;
-        }
-
-        if ( args[0].equalsIgnoreCase("start") ) {
-            // タイマーをスタートする
-
-            String node = PERMISSION_PREFIX + "start";
-            if ( !sender.hasPermission(node) ) {
-                sender.sendMessage(ChatColor.RED + String.format(
-                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
-                return true;
-            }
-            
-            if ( runnable == null ) {
-
-                if ( args.length == 1 ) {
-                    currentConfigName = "default";
-                    config = configs.get("default").clone();
-                } else if ( args.length >= 2 ) {
-                    if ( args[1].matches("^[0-9]+$") ) {
-                        currentConfigName = "default";
-                        config = configs.get("default").clone();
-                        config.seconds = Integer.parseInt(args[1]);
-                        if ( args.length >= 3 && args[2].matches("^[0-9]+$")) {
-                            config.readySeconds = Integer.parseInt(args[2]);
-                        }
-                    } else {
-                        if ( !configs.containsKey(args[1]) ) {
-                            sender.sendMessage(ChatColor.RED +
-                                    String.format("設定 %s が見つかりません！", args[1]));
-                            return true;
-                        }
-                        currentConfigName = args[1];
-                        config = configs.get(args[1]).clone();
-                    }
-                }
-
-                // configからメッセージのリロード
-                Messages.initialize(config.messageFileName);
-
-                startNewTask(null, sender);
-                sender.sendMessage(ChatColor.GRAY + "タイマーを新規に開始しました。");
-                return true;
-
-            } else {
-                if ( runnable.isPaused() ) {
-                    runnable.startFromPause();
-                    sender.sendMessage(ChatColor.GRAY + "タイマーを再開しました。");
-                    return true;
-                } else {
-                    sender.sendMessage(ChatColor.RED + "タイマーが既に開始されています！");
-                    return true;
-                }
-            }
-
-        } else if ( args[0].equalsIgnoreCase("pause") ) {
-            // タイマーを一時停止する
-
-            String node = PERMISSION_PREFIX + "pause";
-            if ( !sender.hasPermission(node) ) {
-                sender.sendMessage(ChatColor.RED + String.format(
-                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
-                return true;
-            }
-            
-            if ( runnable == null ) {
-                sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
-                return true;
-            }
-
-            if ( !runnable.isPaused() ) {
-                runnable.pause();
-                sender.sendMessage(ChatColor.GRAY + "タイマーを一時停止しました。");
-                return true;
-            } else {
-                sender.sendMessage(ChatColor.RED + "タイマーは既に一時停止状態です！");
-                return true;
-
-            }
-
-
-        } else if ( args[0].equalsIgnoreCase("end") ) {
-            // タイマーを強制終了する
-
-            String node = PERMISSION_PREFIX + "end";
-            if ( !sender.hasPermission(node) ) {
-                sender.sendMessage(ChatColor.RED + String.format(
-                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
-                return true;
-            }
-            
-            if ( runnable == null ) {
-                sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
-                return true;
-            }
-
-            endTask();
-            if ( config.useExpBar )
-                setExpLevel(0, 1);
-            sender.sendMessage(ChatColor.GRAY + "タイマーを停止しました。");
-
-            return true;
-
-        } else if ( args[0].equalsIgnoreCase("cancel") ) {
-            // タイマーを強制終了する
-
-            String node = PERMISSION_PREFIX + "cancel";
-            if ( !sender.hasPermission(node) ) {
-                sender.sendMessage(ChatColor.RED + String.format(
-                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
-                return true;
-            }
-            
-            if ( runnable == null ) {
-                sender.sendMessage(ChatColor.RED + "タイマーが開始されていません！");
-                return true;
-            }
-
-            cancelTask();
-            if ( config.useExpBar )
-                setExpLevel(0, 1);
-            sender.sendMessage(ChatColor.GRAY + "タイマーを強制停止しました。");
-            return true;
-
-        } else if ( args[0].equalsIgnoreCase("status") ) {
-            // ステータスを参照する
-
-            String node = PERMISSION_PREFIX + "status";
-            if ( !sender.hasPermission(node) ) {
-                sender.sendMessage(ChatColor.RED + String.format(
-                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
-                return true;
-            }
-            
-            String stat;
-            if ( runnable == null ) {
-                stat = "タイマー停止中";
-            } else {
-                stat = runnable.getStatusDescription();
-            }
-
-            sender.sendMessage(ChatColor.GRAY + "----- ExpTimer information -----");
-            sender.sendMessage(ChatColor.GRAY + "現在の状況：" +
-                    ChatColor.WHITE + stat);
-            sender.sendMessage(ChatColor.GRAY + "現在の設定名：" + currentConfigName);
-            sender.sendMessage(ChatColor.GRAY + "開始時に実行するコマンド：");
-            for ( String com : config.commandsOnStart ) {
-                sender.sendMessage(ChatColor.WHITE + "  " + com);
-            }
-            for ( String com : config.consoleCommandsOnStart ) {
-                sender.sendMessage(ChatColor.AQUA + "  " + com);
-            }
-            sender.sendMessage(ChatColor.GRAY + "終了時に実行するコマンド：");
-            for ( String com : config.commandsOnEnd ) {
-                sender.sendMessage(ChatColor.WHITE + "  " + com);
-            }
-            for ( String com : config.consoleCommandsOnEnd ) {
-                sender.sendMessage(ChatColor.AQUA + "  " + com);
-            }
-            sender.sendMessage(ChatColor.GRAY + "--------------------------------");
-
-            return true;
-
-        } else if ( args[0].equalsIgnoreCase("list") ) {
-            // コンフィグ一覧を表示する
-
-            String node = PERMISSION_PREFIX + "list";
-            if ( !sender.hasPermission(node) ) {
-                sender.sendMessage(ChatColor.RED + String.format(
-                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
-                return true;
-            }
-            
-            String format = ChatColor.GOLD + "%s " + ChatColor.GRAY + ": " +
-                ChatColor.WHITE + "%d " + ChatColor.GRAY + "+ %d seconds";
-            
-            sender.sendMessage(ChatColor.GRAY + "----- ExpTimer config list -----");
-            for ( String key : configs.keySet() ) {
-                int sec = configs.get(key).seconds;
-                int ready = configs.get(key).readySeconds;
-                String message = String.format(format, key, sec, ready);
-                sender.sendMessage(message);
-            }
-            sender.sendMessage(ChatColor.GRAY + "--------------------------------");
-
-            return true;
-
-        } else if ( args[0].equalsIgnoreCase("reload") ) {
-            // config.yml をリロードする
-
-            String node = PERMISSION_PREFIX + "reload";
-            if ( !sender.hasPermission(node) ) {
-                sender.sendMessage(ChatColor.RED + String.format(
-                        "パーミッション \"%s\" がないため、コマンドを実行できません。", node));
-                return true;
-            }
-            
-            if ( runnable != null ) {
-                sender.sendMessage(ChatColor.RED + 
-                        "実行中のタイマーがあるため、リロードできません！");
-                sender.sendMessage(ChatColor.RED + 
-                        "先に /" + label + " cancel を実行して、タイマーを終了してください。");
-                return true;
-            }
-            
-            reloadConfigData();
-            sender.sendMessage(ChatColor.GRAY + "config.yml をリロードしました。");
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -316,14 +91,14 @@ public class ExpTimer extends JavaPlugin implements Listener {
         saveDefaultConfig();
         reloadConfig();
         FileConfiguration config = getConfig();
-        ExpTimer.configs = new HashMap<String, ExpTimerConfig>();
+        configs = new HashMap<String, ExpTimerConfigData>();
 
         // デフォルトのデータ読み込み
         ConfigurationSection section = config.getConfigurationSection("default");
-        ExpTimerConfig defaultData = ExpTimerConfig.loadFromSection(section, null);
-        ExpTimer.config = defaultData;
-        ExpTimer.configs.put("default", defaultData);
-        currentConfigName = "default";
+        ExpTimerConfigData defaultData =
+                ExpTimerConfigData.loadFromSection("default", section, null);
+        configData = defaultData;
+        configs.put("default", defaultData);
 
         // デフォルト以外のデータ読み込み
         for ( String key : config.getKeys(false) ) {
@@ -331,8 +106,8 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 continue;
             }
             section = config.getConfigurationSection(key);
-            ExpTimerConfig data = ExpTimerConfig.loadFromSection(section, defaultData);
-            ExpTimer.configs.put(key, data);
+            ExpTimerConfigData data = ExpTimerConfigData.loadFromSection(key, section, defaultData);
+            configs.put(key, data);
         }
     }
 
@@ -363,21 +138,35 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
     /**
      * 新しいタスクを開始する
+     * @param config コンフィグ。nullならそのままconfigを変更せずにタスクを開始する
+     * @param configName コンフィグ名。表示などで使われる。
+     * @param sender コマンド実行者。nullならcurrentCommandSenderがそのまま引き継がれる
+     */
+    public void startNewTask(ExpTimerConfigData config, String configName, CommandSender sender) {
+
+        if ( config != null ) {
+            configData = config;
+        }
+        if ( sender != null ) {
+            currentCommandSender = sender;
+        } else {
+            currentCommandSender = Bukkit.getConsoleSender();
+        }
+        timer = new TimerTask(this, config);
+        timer.startTimer();
+    }
+
+    /**
+     * 新しいタスクを開始する
      * @param configName コンフィグ名。nullならそのままconfigを変更せずにタスクを開始する
      * @param sender コマンド実行者。nullならcurrentCommandSenderがそのまま引き継がれる
      */
     public void startNewTask(String configName, CommandSender sender) {
 
-        if ( configName != null && configs.containsKey(configName) ) {
-            config = configs.get(configName).clone();
-            Messages.initialize(config.messageFileName);
-            currentConfigName = configName;
+        if ( configName == null || !configs.containsKey(configName) ) {
+            startNewTask((ExpTimerConfigData)null, null, sender);
         }
-        if ( sender != null ) {
-            currentCommandSender = sender;
-        }
-        runnable = new TimerTask(this);
-        task = getServer().getScheduler().runTaskTimer(this, runnable, 20, 20);
+        startNewTask(configs.get(configName).clone(), configName, sender);
     }
 
     /**
@@ -385,20 +174,19 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     public void cancelTask() {
 
-        if ( runnable != null ) {
-            
+        if ( timer != null ) {
+
             // サイドバーのクリア
-            if ( ExpTimer.config.useSideBar ) {
-                runnable.removeSidebar();
+            if ( configData.useSideBar ) {
+                timer.removeSidebar();
             }
 
             // タスクを終了する
-            getServer().getScheduler().cancelTask(task.getTaskId());
-            runnable = null;
-            task = null;
-            
+            timer.endTimer();
+            timer = null;
+
             // 経験値バーのクリア
-            if ( ExpTimer.config.useExpBar ) {
+            if ( configData.useExpBar ) {
                 ExpTimer.setExpLevel(0, 1);
             }
         }
@@ -409,11 +197,19 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     public void endTask() {
 
-        if ( runnable != null ) {
+        if ( timer != null ) {
             // 終了コマンドを実行してタスクを終了する
-            dispatchCommandsBySender(config.commandsOnEnd);
-            dispatchCommandsByConsole(config.consoleCommandsOnEnd);
+
+            dispatchCommandsBySender(configData.commandsOnEnd);
+            dispatchCommandsByConsole(configData.consoleCommandsOnEnd);
             cancelTask();
+
+            // リピート設定なら、新しいタスクを再スケジュール
+            if ( configData.nextConfig != null &&
+                    configs.containsKey(configData.nextConfig) ) {
+                startNewTask(configData.nextConfig, null);
+            }
+
         }
     }
 
@@ -422,7 +218,24 @@ public class ExpTimer extends JavaPlugin implements Listener {
      * @return タスク
      */
     public TimerTask getTask() {
-        return runnable;
+        return timer;
+    }
+
+    /**
+     * 現在のタイマーコンフィグデータを取得する
+     * @return タイマーコンフィグデータ
+     */
+    public ExpTimerConfigData getConfigData() {
+        return configData;
+    }
+
+    /**
+     * 指定された名前のコンフィグを取得する。
+     * @param name コンフィグ名
+     * @return コンフィグ
+     */
+    public ExpTimerConfigData getConfigData(String name) {
+        return configs.get(name);
     }
 
     /**
@@ -440,23 +253,22 @@ public class ExpTimer extends JavaPlugin implements Listener {
     protected static File getPluginJarFile() {
         return instance.getFile();
     }
-    
+
     /**
      * キャッシュされているCommandSenderで、指定されたコマンドをまとめて実行する。
      * @param commands コマンド
      */
     protected void dispatchCommandsBySender(List<String> commands) {
-        
-        // CommandSender を取得する
-        CommandSender sender = Bukkit.getConsoleSender();
-        if ( ExpTimer.config != null  && currentCommandSender != null ) {
-            sender = currentCommandSender;
+
+        // currentCommandSenderが既に無効なら、ConsoleSenderに置き換えておく
+        if ( currentCommandSender == null ) {
+            currentCommandSender = Bukkit.getConsoleSender();
         }
-        
+
         // コマンド実行
-        dispatchCommands(sender, commands);
+        dispatchCommands(currentCommandSender, commands);
     }
-    
+
     /**
      * コンソールで、指定されたコマンドをまとめて実行する。
      * @param commands コマンド
@@ -464,26 +276,34 @@ public class ExpTimer extends JavaPlugin implements Listener {
     protected void dispatchCommandsByConsole(List<String> commands) {
         dispatchCommands(Bukkit.getConsoleSender(), commands);
     }
-    
+
     /**
      * 指定されたコマンドをまとめて実行する。
      * @param sender コマンドを実行する人
      * @param commands コマンド
      */
     private void dispatchCommands(CommandSender sender, List<String> commands) {
-        
+
         for ( String command : commands ) {
+
             if ( command.startsWith("/") ) {
                 command = command.substring(1); // スラッシュ削除
             }
-            
-            // @aがコマンドに含まれている場合は、展開して実行する。
-            // 含まれていないならそのまま実行する。
-            if ( command.contains("@a") ) {
-                Player[] players = Bukkit.getOnlinePlayers();
+
+            // コマンドブロックパターンがコマンドに含まれている場合は、
+            // 展開して実行する。含まれていないならそのまま実行する。
+            String pattern = getCommandBlockPattern(command);
+            if ( pattern != null ) {
+                Location location = null;
+                if ( sender instanceof Player ) {
+                    location = ((Player)sender).getLocation().clone();
+                } else if ( sender instanceof BlockCommandSender ) {
+                    location = ((BlockCommandSender)sender).getBlock().getLocation().clone();
+                }
+                Player[] players = PlayerSelector.getPlayers(location, pattern);
                 for ( Player p : players ) {
-                    Bukkit.dispatchCommand(sender, 
-                            command.replaceAll("@a", p.getName()));
+                    Bukkit.dispatchCommand(sender,
+                            command.replaceAll(pattern, p.getName()));
                 }
             } else {
                 Bukkit.dispatchCommand(sender, command);
@@ -499,7 +319,33 @@ public class ExpTimer extends JavaPlugin implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
 
         // タイマー起動中の死亡は、経験値を落とさない
-        if ( runnable != null )
+        if ( timer != null )
             event.setDroppedExp(0);
+    }
+
+    /**
+     * 指定されたコマンド文字列から、最初に現れるコマンドブロックパターンを
+     * 抽出して返す。
+     * @param command コマンド
+     * @return パターン。見つからない場合はnullになる。
+     */
+    private String getCommandBlockPattern(String command) {
+
+        String[] arguments = command.split(" ");
+
+        for ( int i=1; i<arguments.length; i++ ) {
+            if ( PlayerSelector.isPattern(arguments[i]) ) {
+                return arguments[i];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * ExpTimerのインスタンスを返す
+     * @return ExpTimerのインスタンス
+     */
+    protected static ExpTimer getInstance() {
+        return instance;
     }
 }

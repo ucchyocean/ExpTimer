@@ -19,23 +19,32 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * プラグインのメッセージリソース管理クラス
  * @author ucchy
  */
-public class Messages {
+public class ExpTimerMessages {
 
     private static final String FILE_NAME = "messages.yml";
 
-    private static YamlConfiguration defaultMessages;
-    private static YamlConfiguration resources;
+    private YamlConfiguration resources;
 
+    /**
+     * コンストラクタ
+     */
+    public ExpTimerMessages() {
+        initialize(null);
+    }
+    
+    /**
+     * コンストラクタ
+     * @param filename メッセージファイル
+     */
+    public ExpTimerMessages(String filename) {
+        initialize(filename);
+    }
+    
     /**
      * 初期化する
      * @param filename ファイル名、nullや存在しないファイルが指定されたならデフォルトになる
      */
-    protected static void initialize(String filename) {
-
-        // デフォルトメッセージをロード
-        if ( defaultMessages == null ) {
-            defaultMessages = loadDefaultMessages();
-        }
+    private void initialize(String filename) {
 
         // メッセージファイルをロード
         if ( filename == null ) {
@@ -47,6 +56,12 @@ public class Messages {
                     file, filename, false);
         }
         resources = YamlConfiguration.loadConfiguration(file);
+        
+        // デフォルトメッセージをロード、デフォルトデータとして足す。
+        YamlConfiguration defaultMessages = loadDefaultMessages();
+        for ( String key : defaultMessages.getKeys(true) ) {
+            resources.addDefault(key, defaultMessages.get(key));
+        }
     }
 
     /**
@@ -54,13 +69,8 @@ public class Messages {
      * @param key リソースキー
      * @return リソース
      */
-    protected static String get(String key) {
-
-        if ( resources == null ) {
-            initialize(FILE_NAME);
-        }
-        String def = defaultMessages.getString(key, "");
-        return resources.getString(key, def);
+    public String get(String key) {
+        return resources.getString(key);
     }
 
     /**
@@ -69,8 +79,7 @@ public class Messages {
      * @param args 引数
      * @return リソース
      */
-    protected static String get(String key, Object... args) {
-
+    public String get(String key, Object... args) {
         return String.format(get(key), args);
     }
 

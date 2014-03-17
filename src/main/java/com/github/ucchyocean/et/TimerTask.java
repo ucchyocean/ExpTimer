@@ -15,6 +15,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -57,10 +58,13 @@ public class TimerTask extends BukkitRunnable {
     private boolean flagStart;
     private boolean[] alertFlags;
     private boolean flagEnd;
+    
+    private BukkitTask task;
 
     // このタイマーが一時停止されているかどうか
     private boolean isPaused;
 
+    // ExpTimerのインスタンス
     private ExpTimer plugin;
     
     // スコアボードのオブジェクティブ
@@ -68,31 +72,34 @@ public class TimerTask extends BukkitRunnable {
     
     // 現在表示中のサイドバーアイテム
     private OfflinePlayer sidebarItem;
+    
+    // コンフィグデータ
+    private ExpTimerConfigData configData;
 
     /**
      * コンストラクタ
      * @param secondsReady タイマー開始までの設定時間
      * @param secondsGame タイマーの設定時間
      */
-    public TimerTask(ExpTimer plugin) {
+    public TimerTask(ExpTimer plugin, ExpTimerConfigData configData) {
 
         this.plugin = plugin;
-        ExpTimerConfig config = ExpTimer.config;
+        this.configData = configData;
 
-        secondsReadyRest = config.readySeconds;
-        secondsGameRest = config.seconds;
-        secondsGameMax = config.seconds;
+        secondsReadyRest = configData.readySeconds;
+        secondsGameRest = configData.seconds;
+        secondsGameMax = configData.seconds;
         isPaused = false;
 
         tickReadyBase = System.currentTimeMillis() +
-                config.readySeconds * 1000 + OFFSET;
-        tickGameBase = tickReadyBase + config.seconds * 1000;
+                configData.readySeconds * 1000 + OFFSET;
+        tickGameBase = tickReadyBase + configData.seconds * 1000;
 
         flagStart = false;
         flagEnd = false;
 
         restAlertSeconds = new ArrayList<Integer>();
-        for ( Integer i : config.restAlertSeconds ) {
+        for ( Integer i : configData.restAlertSeconds ) {
             restAlertSeconds.add(i);
         }
         Collections.sort(restAlertSeconds);
@@ -104,7 +111,7 @@ public class TimerTask extends BukkitRunnable {
         }
 
         // objectiveの取得
-        if ( config.useSideBar ) {
+        if ( configData.useSideBar ) {
             Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
             
             // 既にオブジェクティブがあるなら、いったんクリアする
@@ -129,31 +136,36 @@ public class TimerTask extends BukkitRunnable {
     @Override
     public void run() {
 
+        // 終了フラグが既に立っている場合は、スケジュール解除して何もしない
+        if ( flagEnd ) {
+            // TODO
+        }
+
         // 更新実行
         refreshRests();
 
         // 条件に応じてアナウンス
         if ( !flagStart &&
-                secondsReadyRest <= ExpTimer.config.countdownOnStart ) {
+                secondsReadyRest <= configData.countdownOnStart ) {
 
             if ( secondsReadyRest > 0 ) {
                 // スタート前のカウントダウン
                 broadcastMessage("preStartSec", secondsReadyRest);
-                if ( ExpTimer.config.playSound ) {
+                if ( configData.playSound ) {
                     playCountdownSound();
                 }
             } else {
                 // スタート
                 flagStart = true;
                 broadcastMessage("start");
-                if ( ExpTimer.config.playSound ) {
+                if ( configData.playSound ) {
                     playStartEndSound();
                 }
                 // コマンドの実行
                 plugin.dispatchCommandsBySender(
-                        ExpTimer.config.commandsOnStart);
+                        configData.commandsOnStart);
                 plugin.dispatchCommandsByConsole(
-                        ExpTimer.config.consoleCommandsOnStart);
+                        configData.consoleCommandsOnStart);
             }
             
         } else if ( !flagEnd ) {
@@ -172,47 +184,36 @@ public class TimerTask extends BukkitRunnable {
             }
             
             if ( 0 < secondsGameRest &&
-                    secondsGameRest <= ExpTimer.config.countdownOnEnd ) {
+                    secondsGameRest <= configData.countdownOnEnd ) {
                 // 終了前のカウントダウン
                 broadcastMessage("preEndSec", secondsGameRest);
-                if ( ExpTimer.config.playSound ) {
+                if ( configData.playSound ) {
                     playCountdownSound();
                 }
             } else if ( secondsGameRest <= 0 ) {
                 // 終了
                 flagEnd = true;
                 broadcastMessage("end");
-                if ( ExpTimer.config.playSound ) {
+                if ( configData.playSound ) {
                     playStartEndSound();
                 }
-                // コマンドの実行
-                plugin.dispatchCommandsBySender(
-                        ExpTimer.config.commandsOnEnd);
-                plugin.dispatchCommandsByConsole(
-                        ExpTimer.config.consoleCommandsOnEnd);
+                // タスクの終了を呼び出し
+                plugin.endTask();
+                // スケジュール解除
+                // TODO
             }
         }
 
         // 経験値バーの表示更新
-        if ( ExpTimer.config.useExpBar ) {
+        if ( configData.useExpBar ) {
             ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
         }
         
         // サイドバーの表示更新
-        if ( ExpTimer.config.useSideBar ) {
+        if ( configData.useSideBar ) {
             refreshSidebar();
         }
 
-        // 終了条件を満たす場合は、スケジュール解除
-        if ( flagEnd ) {
-            plugin.cancelTask();
-
-            // リピート設定なら、新しいタスクを再スケジュール
-            if ( ExpTimer.config.nextConfig != null &&
-                    ExpTimer.configs.containsKey(ExpTimer.config.nextConfig) ) {
-                plugin.startNewTask(ExpTimer.config.nextConfig, null);
-            }
-        }
     }
 
     /**
@@ -384,11 +385,11 @@ public class TimerTask extends BukkitRunnable {
      */
     private void broadcastMessage(String key, Object... args) {
 
-        String msg = Messages.get(key, args);
+        String msg = configData.messages.get(key, args);
         if ( msg.equals("") ) {
             return;
         }
-        String prefix = Messages.get("prefix");
+        String prefix = configData.messages.get("prefix");
         Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
     }
     
@@ -397,7 +398,7 @@ public class TimerTask extends BukkitRunnable {
      */
     private void playCountdownSound() {
         
-        String name = ExpTimer.config.playSoundCountdown;
+        String name = configData.playSoundCountdown;
         Sound sound;
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
@@ -414,7 +415,7 @@ public class TimerTask extends BukkitRunnable {
      */
     private void playStartEndSound() {
         
-        String name = ExpTimer.config.playSoundStartEnd;
+        String name = configData.playSoundStartEnd;
         Sound sound;
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
@@ -439,5 +440,21 @@ public class TimerTask extends BukkitRunnable {
             }
         }
         return false;
+    }
+    
+    /**
+     * タイマーのスケジュールを行う
+     */
+    protected void startTimer() {
+        task = Bukkit.getScheduler().runTaskTimer(plugin, this, 20, 20);
+    }
+    
+    /**
+     * タイマーのスケジュール解除を行う
+     */
+    protected void endTimer() {
+        if ( task != null ) {
+            Bukkit.getScheduler().cancelTask(task.getTaskId());
+        }
     }
 }

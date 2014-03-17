@@ -14,7 +14,10 @@ import org.bukkit.configuration.ConfigurationSection;
  * コンフィグデータコンポーネント
  * @author ucchy
  */
-public class ExpTimerConfig {
+public class ExpTimerConfigData {
+
+    /** コンフィグ名 */
+    protected String name;
 
     /** タイマー時間（秒） */
     protected int seconds;
@@ -54,7 +57,7 @@ public class ExpTimerConfig {
 
     /** 経験値バーをタイマー表示として使用するかどうか */
     protected boolean useExpBar;
-    
+
     /** サイドバーをタイマー表示として使用するかどうか */
     protected boolean useSideBar;
 
@@ -73,15 +76,29 @@ public class ExpTimerConfig {
     /** ColorTeamingのKillTrophyが達成されたら、タイマーを終了するかどうか */
     protected boolean endWithCTKillTrophy;
 
+    /** メッセージファイル */
+    protected ExpTimerMessages messages;
+
+    /**
+     * コンストラクタ（外部からのアクセス不可）
+     */
+    private ExpTimerConfigData() {
+    }
+
     /**
      * コンフィグのセクションから、ETConfigDataを作成して返す
+     * @param name コンフィグ名
      * @param section セクション
      * @param defaults デフォルトデータ
      * @return 作成されたETConfigData
      */
-    protected static ExpTimerConfig loadFromSection(ConfigurationSection section, ExpTimerConfig defaults) {
+    protected static ExpTimerConfigData loadFromSection(
+            String name, ConfigurationSection section, ExpTimerConfigData defaults) {
 
-        ExpTimerConfig data = new ExpTimerConfig();
+        ExpTimerConfigData data = new ExpTimerConfigData();
+
+        data.name = name;
+
         if ( defaults == null ) {
             data.seconds = section.getInt("seconds", 600);
             data.readySeconds = section.getInt("readySeconds", 10);
@@ -109,6 +126,7 @@ public class ExpTimerConfig {
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
             data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
+
         } else {
             data.seconds = section.getInt("seconds", defaults.seconds);
             data.readySeconds = section.getInt("readySeconds", defaults.readySeconds);
@@ -135,9 +153,9 @@ public class ExpTimerConfig {
             else
                 data.restAlertSeconds = copyIntegerList(defaults.restAlertSeconds);
             data.playSound = section.getBoolean("playSound", defaults.playSound);
-            data.playSoundCountdown = 
+            data.playSoundCountdown =
                 section.getString("playSoundCountdown", defaults.playSoundCountdown);
-            data.playSoundStartEnd = 
+            data.playSoundStartEnd =
                 section.getString("playSoundStartEnd", defaults.playSoundStartEnd);
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
             data.useSideBar = section.getBoolean("useSideBar", defaults.useSideBar);
@@ -153,6 +171,8 @@ public class ExpTimerConfig {
             data.nextConfig = section.getString("nextConfig");
         }
 
+        data.messages = new ExpTimerMessages(data.messageFileName);
+
         return data;
     }
 
@@ -161,9 +181,10 @@ public class ExpTimerConfig {
      * @param org オリジナル
      * @return コピー
      */
-    protected ExpTimerConfig clone() {
+    protected ExpTimerConfigData clone() {
 
-        ExpTimerConfig data = new ExpTimerConfig();
+        ExpTimerConfigData data = new ExpTimerConfigData();
+        data.name = this.name;
         data.seconds = this.seconds;
         data.readySeconds = this.readySeconds;
         data.commandsOnStart = new ArrayList<String>();
@@ -198,6 +219,7 @@ public class ExpTimerConfig {
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
         data.endWithCTLeaderDefeat = this.endWithCTLeaderDefeat;
         data.endWithCTKillTrophy = this.endWithCTKillTrophy;
+        data.messages = this.messages;
 
         return data;
     }

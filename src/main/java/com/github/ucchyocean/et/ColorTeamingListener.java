@@ -35,7 +35,8 @@ public class ColorTeamingListener implements Listener {
     public void onTeamWon(ColorTeamingWonTeamEvent event) {
 
         // 設定オフなら、ここで終了する
-        if ( !ExpTimer.config.endWithCTTeamDefeat ) {
+        if ( plugin.getConfigData() != null &&
+                !plugin.getConfigData().endWithCTTeamDefeat ) {
             return;
         }
 
@@ -50,7 +51,8 @@ public class ColorTeamingListener implements Listener {
     public void onLeaderDefeat(ColorTeamingWonLeaderEvent event) {
 
         // 設定オフなら、ここで終了する
-        if ( !ExpTimer.config.endWithCTLeaderDefeat ) {
+        if ( plugin.getConfigData() != null &&
+                !plugin.getConfigData().endWithCTLeaderDefeat ) {
             return;
         }
 
@@ -65,7 +67,8 @@ public class ColorTeamingListener implements Listener {
     public void onKillTrophy(ColorTeamingTrophyKillEvent event) {
 
         // 設定オフなら、ここで終了する
-        if ( !ExpTimer.config.endWithCTLeaderDefeat ) {
+        if ( plugin.getConfigData() != null &&
+                !plugin.getConfigData().endWithCTKillTrophy ) {
             return;
         }
 
@@ -89,12 +92,6 @@ public class ColorTeamingListener implements Listener {
 
         // タスク終了
         plugin.endTask();
-        
-        // リピート設定なら、新しいタスクを再スケジュール
-        if ( ExpTimer.config.nextConfig != null &&
-                ExpTimer.configs.containsKey(ExpTimer.config.nextConfig) ) {
-            plugin.startNewTask(ExpTimer.config.nextConfig, null);
-        }
     }
 
     /**
@@ -114,11 +111,15 @@ public class ColorTeamingListener implements Listener {
      */
     private void broadcastMessage(String key, Object... args) {
 
-        String prefix = Messages.get("prefix");
-        String msg = Messages.get(key, args);
+        ExpTimerConfigData configData = ExpTimer.getInstance().configData;
+        if ( configData == null ) {
+            return;
+        }
+        String msg = configData.messages.get(key, args);
         if ( msg.equals("") ) {
             return;
         }
+        String prefix = configData.messages.get("prefix");
         Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
     }
 }

@@ -61,7 +61,7 @@
   <dependencies>
     <dependency>
       <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
+      <artifactId>bukkit</artifactId>
       <version>1.7.2-R0.4-SNAPSHOT</version>
     </dependency>
     <dependency>
