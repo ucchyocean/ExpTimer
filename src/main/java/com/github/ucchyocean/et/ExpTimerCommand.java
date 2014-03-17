@@ -1,6 +1,6 @@
 /*
  * @author     ucchy
- * @license    All Rights Reserved
+ * @license    LGPLv3
  * @copyright  Copyright ucchy 2014
  */
 package com.github.ucchyocean.et;
@@ -29,10 +29,13 @@ public class ExpTimerCommand implements TabExecutor {
         this.plugin = plugin;
     }
 
+    /**
+     * @see org.bukkit.command.TabCompleter#onTabComplete(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
+     */
     @Override
-    public List<String> onTabComplete(CommandSender arg0, Command arg1,
-            String arg2, String[] arg3) {
-        // TODO 自動生成されたメソッド・スタブ
+    public List<String> onTabComplete(
+            CommandSender sender, Command command, String label, String[] args) {
+
         return null;
     }
 
@@ -63,13 +66,11 @@ public class ExpTimerCommand implements TabExecutor {
 
             if ( timer == null ) { // 現在、タイマーが動いていない
 
-                ExpTimerConfigData config;
+                ExpTimerConfigData config = null;
 
-                if ( args.length == 1 ) {
-                    config = plugin.configs.get("default").clone();
-                } else if ( args.length >= 2 ) {
+                if ( args.length >= 2 ) {
                     if ( args[1].matches("^[0-9]+$") ) {
-                        config = plugin.configs.get("default").clone();
+                        config = plugin.getConfigData().clone();
                         config.seconds = Integer.parseInt(args[1]);
                         if ( args.length >= 3 && args[2].matches("^[0-9]+$")) {
                             config.readySeconds = Integer.parseInt(args[2]);
@@ -84,7 +85,7 @@ public class ExpTimerCommand implements TabExecutor {
                     }
                 }
 
-                plugin.startNewTask(null, sender);
+                plugin.startNewTask(config, sender);
                 sender.sendMessage(ChatColor.GRAY + "タイマーを新規に開始しました。");
                 return true;
 
@@ -125,7 +126,6 @@ public class ExpTimerCommand implements TabExecutor {
                 return true;
 
             }
-
 
         } else if ( args[0].equalsIgnoreCase("end") ) {
             // タイマーを強制終了する

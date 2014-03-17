@@ -139,20 +139,17 @@ public class ExpTimer extends JavaPlugin implements Listener {
     /**
      * 新しいタスクを開始する
      * @param config コンフィグ。nullならそのままconfigを変更せずにタスクを開始する
-     * @param configName コンフィグ名。表示などで使われる。
      * @param sender コマンド実行者。nullならcurrentCommandSenderがそのまま引き継がれる
      */
-    public void startNewTask(ExpTimerConfigData config, String configName, CommandSender sender) {
+    public void startNewTask(ExpTimerConfigData config, CommandSender sender) {
 
         if ( config != null ) {
             configData = config;
         }
         if ( sender != null ) {
             currentCommandSender = sender;
-        } else {
-            currentCommandSender = Bukkit.getConsoleSender();
         }
-        timer = new TimerTask(this, config);
+        timer = new TimerTask(this, configData);
         timer.startTimer();
     }
 
@@ -164,9 +161,9 @@ public class ExpTimer extends JavaPlugin implements Listener {
     public void startNewTask(String configName, CommandSender sender) {
 
         if ( configName == null || !configs.containsKey(configName) ) {
-            startNewTask((ExpTimerConfigData)null, null, sender);
+            startNewTask((ExpTimerConfigData)null, sender);
         }
-        startNewTask(configs.get(configName).clone(), configName, sender);
+        startNewTask(configs.get(configName).clone(), sender);
     }
 
     /**
