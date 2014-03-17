@@ -91,7 +91,7 @@ public class ColorTeamingListener implements Listener {
         broadcastMessage("onTeamWon", wonTeamName);
 
         // タスク終了
-        plugin.endTask();
+        plugin.endTask(true);
     }
 
     /**
@@ -115,10 +115,11 @@ public class ColorTeamingListener implements Listener {
         if ( configData == null ) {
             return;
         }
-        String msg = configData.messages.get(key, args);
-        if ( msg.equals("") ) {
+        String msg = configData.messages.get(key);
+        if ( msg == null || msg.equals("") ) {
             return;
         }
+        msg = String.format(msg, args);
         String prefix = configData.messages.get("prefix");
         Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
     }

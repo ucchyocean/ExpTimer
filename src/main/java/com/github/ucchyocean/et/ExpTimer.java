@@ -88,7 +88,12 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     protected void reloadConfigData() {
 
-        saveDefaultConfig();
+        File file = new File(ExpTimer.getConfigFolder(), "config.yml");
+        if ( !file.exists() ) {
+            Utility.copyFileFromJar(
+                    ExpTimer.getPluginJarFile(), file, "config_ja.yml");
+        }
+
         reloadConfig();
         FileConfiguration config = getConfig();
         configs = new HashMap<String, ExpTimerConfigData>();
@@ -191,8 +196,9 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
     /**
      * 現在実行中のタスクを終了コマンドを実行してから終了する
+     * @param invokeNextConfig nextConfigを起動するかどうか
      */
-    public void endTask() {
+    public void endTask(boolean invokeNextConfig) {
 
         if ( timer != null ) {
             // 終了コマンドを実行してタスクを終了する
@@ -202,11 +208,11 @@ public class ExpTimer extends JavaPlugin implements Listener {
             cancelTask();
 
             // リピート設定なら、新しいタスクを再スケジュール
-            if ( configData.nextConfig != null &&
+            if ( invokeNextConfig &&
+                    configData.nextConfig != null &&
                     configs.containsKey(configData.nextConfig) ) {
                 startNewTask(configData.nextConfig, null);
             }
-
         }
     }
 

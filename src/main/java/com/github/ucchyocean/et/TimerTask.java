@@ -28,20 +28,20 @@ public class TimerTask extends BukkitRunnable {
 
     /** タイマータスクのステータス列挙体 */
     public enum Status {
-        
+
         /** 一時停止中 */
         PAUSED,
-        
+
         /** 開始準備中 */
         READY,
-        
+
         /** 開始中 */
         RUN,
-        
+
         /** 終了状態 */
         END;
     }
-    
+
     // 実行開始までにかかる処理時間を考慮して、
     // 少し待つためのオフセット（ミリ秒）
     private static final long OFFSET = 150;
@@ -53,12 +53,14 @@ public class TimerTask extends BukkitRunnable {
     private long tickReadyBase;
     private long tickGameBase;
 
+    private ArrayList<Integer> runCommandsOnMidSeconds;
     private ArrayList<Integer> restAlertSeconds;
 
     private boolean flagStart;
+    private boolean[] commandFlags;
     private boolean[] alertFlags;
     private boolean flagEnd;
-    
+
     private BukkitTask task;
 
     // このタイマーが一時停止されているかどうか
@@ -66,13 +68,13 @@ public class TimerTask extends BukkitRunnable {
 
     // ExpTimerのインスタンス
     private ExpTimer plugin;
-    
+
     // スコアボードのオブジェクティブ
     private Objective objective;
-    
+
     // 現在表示中のサイドバーアイテム
     private OfflinePlayer sidebarItem;
-    
+
     // コンフィグデータ
     private ExpTimerConfigData configData;
 
@@ -86,6 +88,7 @@ public class TimerTask extends BukkitRunnable {
         this.plugin = plugin;
         this.configData = configData;
 
+        // 各種変数の初期化
         secondsReadyRest = configData.readySeconds;
         secondsGameRest = configData.seconds;
         secondsGameMax = configData.seconds;
@@ -98,6 +101,20 @@ public class TimerTask extends BukkitRunnable {
         flagStart = false;
         flagEnd = false;
 
+        // runCommandsOnMidSecondsの初期化
+        runCommandsOnMidSeconds = new ArrayList<Integer>();
+        for ( Integer i : configData.runCommandsOnMidSeconds ) {
+            runCommandsOnMidSeconds.add(i);
+        }
+        Collections.sort(runCommandsOnMidSeconds);
+        Collections.reverse(runCommandsOnMidSeconds);
+
+        commandFlags = new boolean[runCommandsOnMidSeconds.size()];
+        for ( int i=0; i<commandFlags.length; i++ ) {
+            commandFlags[i] = ( secondsGameMax <= runCommandsOnMidSeconds.get(i) );
+        }
+
+        // restAlertSecondsの初期化
         restAlertSeconds = new ArrayList<Integer>();
         for ( Integer i : configData.restAlertSeconds ) {
             restAlertSeconds.add(i);
@@ -113,18 +130,18 @@ public class TimerTask extends BukkitRunnable {
         // objectiveの取得
         if ( configData.useSideBar ) {
             Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
-            
+
             // 既にオブジェクティブがあるなら、いったんクリアする
             objective = sb.getObjective("exptimer");
             if ( objective != null ) {
                 objective.unregister();
             }
-            
+
             // 新しいオブジェクティブを作成する
             objective = sb.registerNewObjective("exptimer", "dummy");
             objective.setDisplayName("残り時間");
             sidebarItem = null;
-            
+
             // サイドバーに表示
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         }
@@ -138,7 +155,8 @@ public class TimerTask extends BukkitRunnable {
 
         // 終了フラグが既に立っている場合は、スケジュール解除して何もしない
         if ( flagEnd ) {
-            // TODO
+            endTimer();
+            return;
         }
 
         // 更新実行
@@ -162,27 +180,38 @@ public class TimerTask extends BukkitRunnable {
                     playStartEndSound();
                 }
                 // コマンドの実行
-                plugin.dispatchCommandsBySender(
-                        configData.commandsOnStart);
-                plugin.dispatchCommandsByConsole(
-                        configData.consoleCommandsOnStart);
+                plugin.dispatchCommandsBySender(configData.commandsOnStart);
+                plugin.dispatchCommandsByConsole(configData.consoleCommandsOnStart);
             }
-            
+
         } else if ( !flagEnd ) {
-            
+
             // 残りｎ分の告知処理
             for ( int index=0; index<alertFlags.length; index++ ) {
-                if ( !alertFlags[index] 
+                if ( !alertFlags[index]
                         && secondsGameRest <= restAlertSeconds.get(index) ) {
                     alertFlags[index] = true;
-                    String key = "rest" + restAlertSeconds.get(index) + "sec";
-                    broadcastMessage(key);
+                    broadcastAlertMessage(restAlertSeconds.get(index));
                     break;
                 } else if ( secondsGameRest > restAlertSeconds.get(index) ) {
                     break;
                 }
             }
-            
+
+            // 残りｎ分のコマンド実行
+            for ( int index=0; index<commandFlags.length; index++ ) {
+                if ( !commandFlags[index]
+                        && secondsGameRest <= runCommandsOnMidSeconds.get(index) ) {
+                    commandFlags[index] = true;
+                    // コマンドの実行
+                    plugin.dispatchCommandsBySender(configData.commandsOnMid);
+                    plugin.dispatchCommandsByConsole(configData.consoleCommandsOnMid);
+                    break;
+                } else if ( secondsGameRest > runCommandsOnMidSeconds.get(index) ) {
+                    break;
+                }
+            }
+
             if ( 0 < secondsGameRest &&
                     secondsGameRest <= configData.countdownOnEnd ) {
                 // 終了前のカウントダウン
@@ -198,9 +227,9 @@ public class TimerTask extends BukkitRunnable {
                     playStartEndSound();
                 }
                 // タスクの終了を呼び出し
-                plugin.endTask();
+                plugin.endTask(true);
                 // スケジュール解除
-                // TODO
+                endTimer();
             }
         }
 
@@ -208,7 +237,7 @@ public class TimerTask extends BukkitRunnable {
         if ( configData.useExpBar ) {
             ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
         }
-        
+
         // サイドバーの表示更新
         if ( configData.useSideBar ) {
             refreshSidebar();
@@ -280,13 +309,13 @@ public class TimerTask extends BukkitRunnable {
             tickGameBase = current + secondsGameRest * 1000 + OFFSET;
         }
     }
-    
+
     /**
      * 現在のステータスを返す
      * @return ステータス
      */
     public Status getStatus() {
-        
+
         if ( isPaused ) {
             return Status.PAUSED;
         }
@@ -324,7 +353,7 @@ public class TimerTask extends BukkitRunnable {
     public int getSecondsReadyRest() {
         return secondsReadyRest;
     }
-    
+
     /**
      * 残りのゲーム秒数を返す
      * @return 残りのゲーム秒数
@@ -332,18 +361,22 @@ public class TimerTask extends BukkitRunnable {
     public int getSecondsGameRest() {
         return secondsGameRest;
     }
-    
+
     /**
      * サイドバー表示を更新する
      */
     private void refreshSidebar() {
-        
+
+        if ( objective == null ) {
+            return;
+        }
+
         int hour = secondsGameRest / 3600;
         int minute = (secondsGameRest - hour * 3600) / 60;
         int second = secondsGameRest - hour * 3600 - minute * 60;
-        
+
         String name = String.format(ChatColor.RED + "%02d:%02d:", hour, minute);
-        
+
         if ( sidebarItem == null ) {
             sidebarItem = Bukkit.getOfflinePlayer(name);
         } else if ( !name.equals(sidebarItem.getName()) ) {
@@ -355,20 +388,20 @@ public class TimerTask extends BukkitRunnable {
 
         objective.getScore(sidebarItem).setScore(second);
     }
-    
+
     /**
      * サイドバーを非表示にする
      */
     protected void removeSidebar() {
-        
+
         Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
-        
+
         if ( sidebarItem != null ) {
             objective.getScore(sidebarItem).setScore(0);
             sb.resetScores(sidebarItem);
         }
         sidebarItem = null;
-        
+
         Objective sideObj = sb.getObjective(DisplaySlot.SIDEBAR);
         if ( sideObj != null && sideObj.getName().equals("exptimer") ) {
             sb.clearSlot(DisplaySlot.SIDEBAR);
@@ -376,28 +409,44 @@ public class TimerTask extends BukkitRunnable {
         }
         objective = null;
     }
-    
+
     /**
      * メッセージリソースを取得し、ブロードキャストする
      * @param key メッセージキー
      * @param args メッセージの引数
-     * @return メッセージ
      */
     private void broadcastMessage(String key, Object... args) {
 
-        String msg = configData.messages.get(key, args);
-        if ( msg.equals("") ) {
+        String msg = configData.messages.get(key);
+        if ( msg == null || msg.equals("") ) {
             return;
+        }
+        msg = String.format(msg, args);
+        String prefix = configData.messages.get("prefix");
+        Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+    }
+
+    /**
+     * 残り時間の通知をブロードキャストする
+     * @param seconds 残り時間
+     */
+    private void broadcastAlertMessage(int seconds) {
+
+        String key = "rest" + seconds + "sec";
+        String msg = configData.messages.get(key);
+        if ( msg == null || msg.equals("") ) {
+            msg = configData.messages.get("preEndSec");
+            msg = String.format(msg, seconds);
         }
         String prefix = configData.messages.get("prefix");
         Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
     }
-    
+
     /**
      * カウントダウンの音を出す
      */
     private void playCountdownSound() {
-        
+
         String name = configData.playSoundCountdown;
         Sound sound;
         if ( isValidSoundName(name) ) {
@@ -409,12 +458,12 @@ public class TimerTask extends BukkitRunnable {
             player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
         }
     }
-    
+
     /**
      * 開始音・終了音を出す
      */
     private void playStartEndSound() {
-        
+
         String name = configData.playSoundStartEnd;
         Sound sound;
         if ( isValidSoundName(name) ) {
@@ -426,7 +475,7 @@ public class TimerTask extends BukkitRunnable {
             player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
         }
     }
-    
+
     /**
      * 指定された名前は、Soundクラスに含まれているか、確認する
      * @param name サウンド名
@@ -441,14 +490,14 @@ public class TimerTask extends BukkitRunnable {
         }
         return false;
     }
-    
+
     /**
      * タイマーのスケジュールを行う
      */
     protected void startTimer() {
         task = Bukkit.getScheduler().runTaskTimer(plugin, this, 20, 20);
     }
-    
+
     /**
      * タイマーのスケジュール解除を行う
      */

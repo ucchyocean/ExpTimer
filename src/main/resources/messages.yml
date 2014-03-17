@@ -4,11 +4,11 @@
 # @copyright  Copyright ucchy 2013
 
 prefix: '&f[ExpTimer]'
-preStartSec: '&d開始まで%2s秒'
+preStartSec: '&d開始まで %d秒'
 start: '&d開始！'
 rest300sec: '&d残り 5分です'
 rest180sec: '&d残り 3分です'
 rest60sec: '&d残り 1分です'
-preEndSec: '&d残り%2s秒です'
+preEndSec: '&d残り %d秒です'
 end: '&d終了！'
 onTeamWon: '%sチームの勝利です！'

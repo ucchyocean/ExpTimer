@@ -28,11 +28,17 @@ public class ExpTimerConfigData {
     /** タイマースタート時に実行するコマンド */
     protected List<String> commandsOnStart;
 
+    /** 設定した時間に実行するコマンド */
+    protected List<String> commandsOnMid;
+
     /** タイマー終了時に実行するコマンド */
     protected List<String> commandsOnEnd;
 
     /** タイマースタート時にコンソールで実行するコマンド */
     protected List<String> consoleCommandsOnStart;
+
+    /** 設定した時間にコンソールで実行するコマンド */
+    protected List<String> consoleCommandsOnMid;
 
     /** タイマー終了時にコンソールで実行するコマンド */
     protected List<String> consoleCommandsOnEnd;
@@ -42,6 +48,9 @@ public class ExpTimerConfigData {
 
     /** タイマー終了前のカウントダウン時間（秒） */
     protected int countdownOnEnd;
+
+    /** タイマー途中でコマンドを実行する時間 */
+    protected List<Integer> runCommandsOnMidSeconds;
 
     /** 残り時間アラートの時間（秒） */
     protected List<Integer> restAlertSeconds;
@@ -103,11 +112,14 @@ public class ExpTimerConfigData {
             data.seconds = section.getInt("seconds", 600);
             data.readySeconds = section.getInt("readySeconds", 10);
             data.commandsOnStart = section.getStringList("commandsOnStart");
+            data.commandsOnMid = section.getStringList("commandsOnMid");
             data.commandsOnEnd = section.getStringList("commandsOnEnd");
             data.consoleCommandsOnStart = section.getStringList("consoleCommandsOnStart");
+            data.consoleCommandsOnMid = section.getStringList("consoleCommandsOnMid");
             data.consoleCommandsOnEnd = section.getStringList("consoleCommandsOnEnd");
             data.countdownOnStart = section.getInt("countdownOnStart", 3);
             data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
+            data.runCommandsOnMidSeconds = section.getIntegerList("runCommandsOnMidSeconds");
             if ( section.contains("restAlertSeconds") ) {
                 data.restAlertSeconds = section.getIntegerList("restAlertSeconds");
             } else {
@@ -134,6 +146,10 @@ public class ExpTimerConfigData {
                 data.commandsOnStart = section.getStringList("commandsOnStart");
             else
                 data.commandsOnStart = copyStringList(defaults.commandsOnStart);
+            if ( section.contains("commandsOnMid") )
+                data.commandsOnMid = section.getStringList("commandsOnMid");
+            else
+                data.commandsOnMid = copyStringList(defaults.commandsOnMid);
             if ( section.contains("commandsOnEnd") )
                 data.commandsOnEnd = section.getStringList("commandsOnEnd");
             else
@@ -142,12 +158,20 @@ public class ExpTimerConfigData {
                 data.consoleCommandsOnStart = section.getStringList("consoleCommandsOnStart");
             else
                 data.consoleCommandsOnStart = copyStringList(defaults.consoleCommandsOnStart);
+            if ( section.contains("consoleCommandsOnMid") )
+                data.consoleCommandsOnMid = section.getStringList("consoleCommandsOnMid");
+            else
+                data.consoleCommandsOnMid = copyStringList(defaults.consoleCommandsOnMid);
             if ( section.contains("consoleCommandsOnEnd") )
                 data.consoleCommandsOnEnd = section.getStringList("consoleCommandsOnEnd");
             else
                 data.consoleCommandsOnEnd = copyStringList(defaults.consoleCommandsOnEnd);
             data.countdownOnStart = section.getInt("countdownOnStart", defaults.countdownOnStart);
             data.countdownOnEnd = section.getInt("countdownOnEnd", defaults.countdownOnEnd);
+            if ( section.contains("runCommandsOnMidSeconds") )
+                data.runCommandsOnMidSeconds = section.getIntegerList("runCommandsOnMidSeconds");
+            else
+                data.runCommandsOnMidSeconds = copyIntegerList(defaults.runCommandsOnMidSeconds);
             if ( section.contains("restAlertSeconds") )
                 data.restAlertSeconds = section.getIntegerList("restAlertSeconds");
             else
@@ -191,6 +215,10 @@ public class ExpTimerConfigData {
         for ( String c : this.commandsOnStart ) {
             data.commandsOnStart.add(c);
         }
+        data.commandsOnMid = new ArrayList<String>();
+        for ( String c : this.commandsOnMid ) {
+            data.commandsOnMid.add(c);
+        }
         data.commandsOnEnd = new ArrayList<String>();
         for ( String c : this.commandsOnEnd ) {
             data.commandsOnEnd.add(c);
@@ -199,12 +227,20 @@ public class ExpTimerConfigData {
         for ( String c : this.consoleCommandsOnStart ) {
             data.consoleCommandsOnStart.add(c);
         }
+        data.consoleCommandsOnMid = new ArrayList<String>();
+        for ( String c : this.consoleCommandsOnMid ) {
+            data.consoleCommandsOnMid.add(c);
+        }
         data.consoleCommandsOnEnd = new ArrayList<String>();
         for ( String c : this.consoleCommandsOnEnd ) {
             data.consoleCommandsOnEnd.add(c);
         }
         data.countdownOnStart = this.countdownOnStart;
         data.countdownOnEnd = this.countdownOnEnd;
+        data.runCommandsOnMidSeconds = new ArrayList<Integer>();
+        for ( Integer c : this.runCommandsOnMidSeconds ) {
+            data.runCommandsOnMidSeconds.add(c);
+        }
         data.restAlertSeconds = new ArrayList<Integer>();
         for ( Integer c : this.restAlertSeconds ) {
             data.restAlertSeconds.add(c);

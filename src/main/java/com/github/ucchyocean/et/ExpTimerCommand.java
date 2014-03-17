@@ -144,7 +144,7 @@ public class ExpTimerCommand implements TabExecutor {
                 return true;
             }
 
-            plugin.endTask();
+            plugin.endTask(false);
             sender.sendMessage(ChatColor.GRAY + "タイマーを停止しました。");
 
             return true;
@@ -192,20 +192,41 @@ public class ExpTimerCommand implements TabExecutor {
             sender.sendMessage(ChatColor.GRAY + "----- ExpTimer information -----");
             sender.sendMessage(ChatColor.GRAY + "現在の状況：" +
                     ChatColor.WHITE + stat);
-            sender.sendMessage(ChatColor.GRAY + "現在の設定名：" + config.name);
-            sender.sendMessage(ChatColor.GRAY + "開始時に実行するコマンド：");
-            for ( String com : config.commandsOnStart ) {
-                sender.sendMessage(ChatColor.WHITE + "  " + com);
+            sender.sendMessage(ChatColor.GRAY + "現在の設定名：" +
+                    ChatColor.WHITE + config.name);
+            if ( config.commandsOnStart.size() > 0 ) {
+                sender.sendMessage(ChatColor.GRAY + "開始時に実行するコマンド：");
+                for ( String com : config.commandsOnStart ) {
+                    sender.sendMessage(ChatColor.WHITE + "  " + com);
+                }
+                for ( String com : config.consoleCommandsOnStart ) {
+                    sender.sendMessage(ChatColor.AQUA + "  " + com);
+                }
             }
-            for ( String com : config.consoleCommandsOnStart ) {
-                sender.sendMessage(ChatColor.AQUA + "  " + com);
+            if ( config.runCommandsOnMidSeconds.size() > 0 ) {
+                StringBuilder timeDesc = new StringBuilder();
+                for ( int i : config.runCommandsOnMidSeconds ) {
+                    if ( timeDesc.length() > 0 ) {
+                        timeDesc.append(", ");
+                    }
+                    timeDesc.append(i);
+                }
+                sender.sendMessage(ChatColor.GRAY + timeDesc.toString() + "秒に実行するコマンド：");
+                for ( String com : config.commandsOnMid ) {
+                    sender.sendMessage(ChatColor.WHITE + "  " + com);
+                }
+                for ( String com : config.consoleCommandsOnMid ) {
+                    sender.sendMessage(ChatColor.AQUA + "  " + com);
+                }
             }
-            sender.sendMessage(ChatColor.GRAY + "終了時に実行するコマンド：");
-            for ( String com : config.commandsOnEnd ) {
-                sender.sendMessage(ChatColor.WHITE + "  " + com);
-            }
-            for ( String com : config.consoleCommandsOnEnd ) {
-                sender.sendMessage(ChatColor.AQUA + "  " + com);
+            if ( config.commandsOnEnd.size() > 0 ) {
+                sender.sendMessage(ChatColor.GRAY + "終了時に実行するコマンド：");
+                for ( String com : config.commandsOnEnd ) {
+                    sender.sendMessage(ChatColor.WHITE + "  " + com);
+                }
+                for ( String com : config.consoleCommandsOnEnd ) {
+                    sender.sendMessage(ChatColor.AQUA + "  " + com);
+                }
             }
             sender.sendMessage(ChatColor.GRAY + "--------------------------------");
 

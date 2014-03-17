@@ -31,7 +31,7 @@ public class ExpTimerMessages {
     public ExpTimerMessages() {
         initialize(null);
     }
-    
+
     /**
      * コンストラクタ
      * @param filename メッセージファイル
@@ -39,7 +39,7 @@ public class ExpTimerMessages {
     public ExpTimerMessages(String filename) {
         initialize(filename);
     }
-    
+
     /**
      * 初期化する
      * @param filename ファイル名、nullや存在しないファイルが指定されたならデフォルトになる
@@ -52,11 +52,11 @@ public class ExpTimerMessages {
         }
         File file = new File(ExpTimer.getConfigFolder(), filename);
         if ( !file.exists() ) {
-            Utility.copyFileFromJar(ExpTimer.getPluginJarFile(),
-                    file, filename, false);
+            Utility.copyFileFromJar(
+                    ExpTimer.getPluginJarFile(), file, filename);
         }
         resources = YamlConfiguration.loadConfiguration(file);
-        
+
         // デフォルトメッセージをロード、デフォルトデータとして足す。
         YamlConfiguration defaultMessages = loadDefaultMessages();
         for ( String key : defaultMessages.getKeys(true) ) {
@@ -74,13 +74,12 @@ public class ExpTimerMessages {
     }
 
     /**
-     * リソースを取得する
+     * 指定したキーがリソース定義されているかどうかを確認する
      * @param key リソースキー
-     * @param args 引数
-     * @return リソース
+     * @return 定義されているかどうか
      */
-    public String get(String key, Object... args) {
-        return String.format(get(key), args);
+    public boolean containsKey(String key) {
+        return resources.contains(key);
     }
 
     /**

@@ -26,20 +26,20 @@ import org.bukkit.ChatColor;
 public class Utility {
 
     /**
-     * jarファイルの中に格納されているファイルを、jarファイルの外にコピーするメソッド
+     * jarファイルの中に格納されているテキストファイルを、jarファイルの外にコピーするメソッド<br/>
+     * WindowsだとS-JISで、MacintoshやLinuxだとUTF-8で保存されます。
      * @param jarFile jarファイル
      * @param targetFile コピー先
      * @param sourceFilePath コピー元
-     * @param isBinary バイナリファイルかどうか
      */
-    protected static void copyFileFromJar(
-            File jarFile, File targetFile, String sourceFilePath, boolean isBinary) {
+    public static void copyFileFromJar(
+            File jarFile, File targetFile, String sourceFilePath) {
 
+        JarFile jar = null;
         InputStream is = null;
         FileOutputStream fos = null;
         BufferedReader reader = null;
         BufferedWriter writer = null;
-        JarFile jar = null;
 
         File parent = targetFile.getParentFile();
         if ( !parent.exists() ) {
@@ -53,23 +53,13 @@ public class Utility {
 
             fos = new FileOutputStream(targetFile);
 
-            if ( isBinary ) {
-                byte[] buf = new byte[8192];
-                int len;
-                while ( (len = is.read(buf)) != -1 ) {
-                    fos.write(buf, 0, len);
-                }
+            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            writer = new BufferedWriter(new OutputStreamWriter(fos));
 
-            } else {
-                reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-                writer = new BufferedWriter(new OutputStreamWriter(fos));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    writer.write(line);
-                    writer.newLine();
-                }
-
+            String line;
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+                writer.newLine();
             }
 
         } catch (FileNotFoundException e) {
