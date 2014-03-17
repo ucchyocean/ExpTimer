@@ -23,6 +23,8 @@ default:
   endWithCTTeamDefeat: false
   endWithCTLeaderDefeat: false
   endWithCTKillTrophy: false
+  endWithTeamPointUnder: -99999
+  endWithTeamPointOver: 99999
 
 # 100秒のタイマー設定サンプルです。/timer start Timer1 で、実行することが可能です。
 # commandsOnStartにコマンドを設定すると、タイマー開始時に、

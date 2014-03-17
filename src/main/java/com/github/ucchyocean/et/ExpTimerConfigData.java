@@ -85,6 +85,12 @@ public class ExpTimerConfigData {
     /** ColorTeamingのKillTrophyが達成されたら、タイマーを終了するかどうか */
     protected boolean endWithCTKillTrophy;
 
+    /** ColorTeamingのチームポイントが、基準値を下回ったら、タイマーを終了する */
+    protected int endWithTeamPointUnder;
+
+    /** ColorTeamingのチームポイントが、基準値を上回ったら、タイマーを終了する */
+    protected int endWithTeamPointOver;
+
     /** メッセージファイル */
     protected ExpTimerMessages messages;
 
@@ -138,6 +144,8 @@ public class ExpTimerConfigData {
             data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
             data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
+            data.endWithTeamPointUnder = section.getInt("endWithTeamPointUnder", -99999);
+            data.endWithTeamPointOver = section.getInt("endWithTeamPointOver", 99999);
 
         } else {
             data.seconds = section.getInt("seconds", defaults.seconds);
@@ -189,6 +197,10 @@ public class ExpTimerConfigData {
                 section.getBoolean("endWithCTLeaderDefeat", defaults.endWithCTLeaderDefeat);
             data.endWithCTKillTrophy =
                 section.getBoolean("endWithCTKillTrophy", defaults.endWithCTKillTrophy);
+            data.endWithTeamPointUnder =
+                section.getInt("endWithTeamPointUnder", defaults.endWithTeamPointUnder);
+            data.endWithTeamPointOver =
+                section.getInt("endWithTeamPointOver", defaults.endWithTeamPointOver);
 
             // メッセージファイル設定、次タスク設定は、デフォルトを引き継がない。
             data.messageFileName = section.getString("messageFileName");
@@ -255,6 +267,8 @@ public class ExpTimerConfigData {
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
         data.endWithCTLeaderDefeat = this.endWithCTLeaderDefeat;
         data.endWithCTKillTrophy = this.endWithCTKillTrophy;
+        data.endWithTeamPointUnder = this.endWithTeamPointUnder;
+        data.endWithTeamPointOver = this.endWithTeamPointOver;
         data.messages = this.messages;
 
         return data;

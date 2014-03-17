@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import com.github.ucchyocean.ct.config.TeamNameSetting;
+import com.github.ucchyocean.ct.event.ColorTeamingTeamscoreChangeEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingTrophyKillEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingWonLeaderEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingWonTeamEvent;
@@ -73,6 +74,31 @@ public class ColorTeamingListener implements Listener {
         }
 
         endTask(event.getTeam().getName());
+    }
+
+    /**
+     * ColorTeaming チームポイント変動イベント
+     * @param event
+     */
+    @EventHandler
+    public void onTeamPointChange(ColorTeamingTeamscoreChangeEvent event) {
+
+        int before = event.getPointBefore();
+        int after = event.getPointAfter();
+
+        // ポイントが基準値を下回ったかどうかを確認する。
+        int threshold = plugin.getConfigData().endWithTeamPointUnder;
+        if ( threshold < before && after <= threshold ) {
+            endTask(event.getTeam());
+            return;
+        }
+
+        // ポイントが基準値を上回ったかどうかを確認する。
+        threshold = plugin.getConfigData().endWithTeamPointOver;
+        if ( before < threshold && threshold <= after ) {
+            endTask(event.getTeam());
+            return;
+        }
     }
 
     /**
