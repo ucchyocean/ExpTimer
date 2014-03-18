@@ -51,7 +51,7 @@ public class ColorTeamingBridge implements Listener {
 
         // 設定オフなら、ここで終了する
         if ( plugin.getConfigData() != null &&
-                !plugin.getConfigData().isEndWithCTLeaderDefeat() ) {
+                !plugin.getConfigData().isEndWithCTTeamDefeat() ) {
             return;
         }
 
