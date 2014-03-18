@@ -34,6 +34,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
     protected ExpTimerConfigData configData;
     protected HashMap<String, ExpTimerConfigData> configs;
     private CommandSender currentCommandSender;
+    private ColorTeamingBridge bridge;
 
     /**
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -58,14 +59,14 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
             Plugin temp = getServer().getPluginManager().getPlugin("ColorTeaming");
             String ctversion = temp.getDescription().getVersion();
-            if ( Utility.isUpperVersion(ctversion, "2.3.0") ) {
+            if ( Utility.isUpperVersion(ctversion, "2.3.2") ) {
                 getLogger().info("ColorTeaming was loaded. "
                         + getDescription().getName() + " is in cooperation with ColorTeaming.");
-                ColorTeamingListener listener = new ColorTeamingListener(this);
-                getServer().getPluginManager().registerEvents(listener, this);
+                bridge = new ColorTeamingBridge(this, temp);
+                getServer().getPluginManager().registerEvents(bridge, this);
             } else {
                 getLogger().warning("ColorTeaming was too old. The cooperation feature will be disabled.");
-                getLogger().warning("NOTE: Please use ColorTeaming v2.3.0 or later version.");
+                getLogger().warning("NOTE: Please use ColorTeaming v2.3.2 or later version.");
             }
         }
     }
@@ -179,7 +180,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( timer != null ) {
 
             // サイドバーのクリア
-            if ( configData.useSideBar ) {
+            if ( configData.isUseSideBar() ) {
                 timer.removeSidebar();
             }
 
@@ -188,7 +189,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
             timer = null;
 
             // 経験値バーのクリア
-            if ( configData.useExpBar ) {
+            if ( configData.isUseExpBar() ) {
                 ExpTimer.setExpLevel(0, 1);
             }
         }
@@ -203,15 +204,15 @@ public class ExpTimer extends JavaPlugin implements Listener {
         if ( timer != null ) {
             // 終了コマンドを実行してタスクを終了する
 
-            dispatchCommandsBySender(configData.commandsOnEnd);
-            dispatchCommandsByConsole(configData.consoleCommandsOnEnd);
+            dispatchCommandsBySender(configData.getCommandsOnEnd());
+            dispatchCommandsByConsole(configData.getConsoleCommandsOnEnd());
             cancelTask();
 
             // リピート設定なら、新しいタスクを再スケジュール
             if ( invokeNextConfig &&
-                    configData.nextConfig != null &&
-                    configs.containsKey(configData.nextConfig) ) {
-                startNewTask(configData.nextConfig, null);
+                    configData.getNextConfig() != null &&
+                    configs.containsKey(configData.getNextConfig()) ) {
+                startNewTask(configData.getNextConfig(), null);
             }
         }
     }
@@ -352,5 +353,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     protected static ExpTimer getInstance() {
         return instance;
+    }
+    
+    /**
+     * ColorTeaming連携時に、ColorTeamingBridgeを返す
+     * @return ColorTeamingBridge、非連携時にはnullになることに注意
+     */
+    protected ColorTeamingBridge getColorTeaming() {
+        return bridge;
     }
 }

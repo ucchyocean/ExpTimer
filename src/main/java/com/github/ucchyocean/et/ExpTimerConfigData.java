@@ -17,82 +17,85 @@ import org.bukkit.configuration.ConfigurationSection;
 public class ExpTimerConfigData {
 
     /** コンフィグ名 */
-    protected String name;
+    private String name;
 
     /** タイマー時間（秒） */
-    protected int seconds;
+    private int seconds;
 
     /** 開始前タイマー時間（秒） */
-    protected int readySeconds;
+    private int readySeconds;
 
     /** タイマースタート時に実行するコマンド */
-    protected List<String> commandsOnStart;
+    private List<String> commandsOnStart;
 
     /** 設定した時間に実行するコマンド */
-    protected List<String> commandsOnMid;
+    private List<String> commandsOnMid;
 
     /** タイマー終了時に実行するコマンド */
-    protected List<String> commandsOnEnd;
+    private List<String> commandsOnEnd;
 
     /** タイマースタート時にコンソールで実行するコマンド */
-    protected List<String> consoleCommandsOnStart;
+    private List<String> consoleCommandsOnStart;
 
     /** 設定した時間にコンソールで実行するコマンド */
-    protected List<String> consoleCommandsOnMid;
+    private List<String> consoleCommandsOnMid;
 
     /** タイマー終了時にコンソールで実行するコマンド */
-    protected List<String> consoleCommandsOnEnd;
+    private List<String> consoleCommandsOnEnd;
 
     /** タイマースタート前のカウントダウン時間（秒） */
-    protected int countdownOnStart;
+    private int countdownOnStart;
 
     /** タイマー終了前のカウントダウン時間（秒） */
-    protected int countdownOnEnd;
+    private int countdownOnEnd;
 
     /** タイマー途中でコマンドを実行する時間 */
-    protected List<Integer> runCommandsOnMidSeconds;
+    private List<Integer> runCommandsOnMidSeconds;
 
     /** 残り時間アラートの時間（秒） */
-    protected List<Integer> restAlertSeconds;
+    private List<Integer> restAlertSeconds;
 
     /** カウントダウン中に音を出すかどうか */
-    protected boolean playSound;
+    private boolean playSound;
 
     /** カウントダウン時の音の種類（隠しオプション） */
-    protected String playSoundCountdown;
+    private String playSoundCountdown;
 
     /** スタート時・終了時の音の種類（隠しオプション） */
-    protected String playSoundStartEnd;
+    private String playSoundStartEnd;
 
     /** 経験値バーをタイマー表示として使用するかどうか */
-    protected boolean useExpBar;
+    private boolean useExpBar;
 
     /** サイドバーをタイマー表示として使用するかどうか */
-    protected boolean useSideBar;
+    private boolean useSideBar;
 
     /** メッセージファイルのファイル名指定 */
-    protected String messageFileName;
+    private String messageFileName;
 
     /** 次に自動で実行するタスクのコンフィグ名 */
-    protected String nextConfig;
+    private String nextConfig;
 
     /** ColorTeamingのチームが全滅したら、タイマーを終了するかどうか */
-    protected boolean endWithCTTeamDefeat;
+    private boolean endWithCTTeamDefeat;
 
     /** ColorTeamingのリーダーが全滅したら、タイマーを終了するかどうか */
-    protected boolean endWithCTLeaderDefeat;
+    private boolean endWithCTLeaderDefeat;
 
     /** ColorTeamingのKillTrophyが達成されたら、タイマーを終了するかどうか */
-    protected boolean endWithCTKillTrophy;
+    private boolean endWithCTKillTrophy;
 
     /** ColorTeamingのチームポイントが、基準値を下回ったら、タイマーを終了する */
-    protected int endWithTeamPointUnder;
+    private int endWithTeamPointUnder;
 
     /** ColorTeamingのチームポイントが、基準値を上回ったら、タイマーを終了する */
-    protected int endWithTeamPointOver;
+    private int endWithTeamPointOver;
+    
+    /** ColorTeamingで設定されたチームメンバーのみに、アナウンスメッセージを流すかどうか */
+    private boolean announceToOnlyTeamMembers;
 
     /** メッセージファイル */
-    protected ExpTimerMessages messages;
+    private ExpTimerMessages messages;
 
     /**
      * コンストラクタ（外部からのアクセス不可）
@@ -146,6 +149,8 @@ public class ExpTimerConfigData {
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
             data.endWithTeamPointUnder = section.getInt("endWithTeamPointUnder", -99999);
             data.endWithTeamPointOver = section.getInt("endWithTeamPointOver", 99999);
+            data.announceToOnlyTeamMembers = 
+                    section.getBoolean("announceToOnlyTeamMembers", false);
 
         } else {
             data.seconds = section.getInt("seconds", defaults.seconds);
@@ -201,6 +206,9 @@ public class ExpTimerConfigData {
                 section.getInt("endWithTeamPointUnder", defaults.endWithTeamPointUnder);
             data.endWithTeamPointOver =
                 section.getInt("endWithTeamPointOver", defaults.endWithTeamPointOver);
+            data.announceToOnlyTeamMembers = 
+                section.getBoolean(
+                    "announceToOnlyTeamMembers", defaults.announceToOnlyTeamMembers);
 
             // メッセージファイル設定、次タスク設定は、デフォルトを引き継がない。
             data.messageFileName = section.getString("messageFileName");
@@ -217,7 +225,7 @@ public class ExpTimerConfigData {
      * @param org オリジナル
      * @return コピー
      */
-    protected ExpTimerConfigData clone() {
+    public ExpTimerConfigData clone() {
 
         ExpTimerConfigData data = new ExpTimerConfigData();
         data.name = this.name;
@@ -269,6 +277,7 @@ public class ExpTimerConfigData {
         data.endWithCTKillTrophy = this.endWithCTKillTrophy;
         data.endWithTeamPointUnder = this.endWithTeamPointUnder;
         data.endWithTeamPointOver = this.endWithTeamPointOver;
+        data.announceToOnlyTeamMembers = this.announceToOnlyTeamMembers;
         data.messages = this.messages;
 
         return data;
@@ -300,5 +309,223 @@ public class ExpTimerConfigData {
             data.add(d);
         }
         return data;
+    }
+    
+    // ===== 以下、自動生成されたgetterとsetter
+    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getSeconds() {
+        return seconds;
+    }
+
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
+    }
+
+    public int getReadySeconds() {
+        return readySeconds;
+    }
+
+    public void setReadySeconds(int readySeconds) {
+        this.readySeconds = readySeconds;
+    }
+
+    public List<String> getCommandsOnStart() {
+        return commandsOnStart;
+    }
+
+    public void setCommandsOnStart(List<String> commandsOnStart) {
+        this.commandsOnStart = commandsOnStart;
+    }
+
+    public List<String> getCommandsOnMid() {
+        return commandsOnMid;
+    }
+
+    public void setCommandsOnMid(List<String> commandsOnMid) {
+        this.commandsOnMid = commandsOnMid;
+    }
+
+    public List<String> getCommandsOnEnd() {
+        return commandsOnEnd;
+    }
+
+    public void setCommandsOnEnd(List<String> commandsOnEnd) {
+        this.commandsOnEnd = commandsOnEnd;
+    }
+
+    public List<String> getConsoleCommandsOnStart() {
+        return consoleCommandsOnStart;
+    }
+
+    public void setConsoleCommandsOnStart(List<String> consoleCommandsOnStart) {
+        this.consoleCommandsOnStart = consoleCommandsOnStart;
+    }
+
+    public List<String> getConsoleCommandsOnMid() {
+        return consoleCommandsOnMid;
+    }
+
+    public void setConsoleCommandsOnMid(List<String> consoleCommandsOnMid) {
+        this.consoleCommandsOnMid = consoleCommandsOnMid;
+    }
+
+    public List<String> getConsoleCommandsOnEnd() {
+        return consoleCommandsOnEnd;
+    }
+
+    public void setConsoleCommandsOnEnd(List<String> consoleCommandsOnEnd) {
+        this.consoleCommandsOnEnd = consoleCommandsOnEnd;
+    }
+
+    public int getCountdownOnStart() {
+        return countdownOnStart;
+    }
+
+    public void setCountdownOnStart(int countdownOnStart) {
+        this.countdownOnStart = countdownOnStart;
+    }
+
+    public int getCountdownOnEnd() {
+        return countdownOnEnd;
+    }
+
+    public void setCountdownOnEnd(int countdownOnEnd) {
+        this.countdownOnEnd = countdownOnEnd;
+    }
+
+    public List<Integer> getRunCommandsOnMidSeconds() {
+        return runCommandsOnMidSeconds;
+    }
+
+    public void setRunCommandsOnMidSeconds(List<Integer> runCommandsOnMidSeconds) {
+        this.runCommandsOnMidSeconds = runCommandsOnMidSeconds;
+    }
+
+    public List<Integer> getRestAlertSeconds() {
+        return restAlertSeconds;
+    }
+
+    public void setRestAlertSeconds(List<Integer> restAlertSeconds) {
+        this.restAlertSeconds = restAlertSeconds;
+    }
+
+    public boolean isPlaySound() {
+        return playSound;
+    }
+
+    public void setPlaySound(boolean playSound) {
+        this.playSound = playSound;
+    }
+
+    public String getPlaySoundCountdown() {
+        return playSoundCountdown;
+    }
+
+    public void setPlaySoundCountdown(String playSoundCountdown) {
+        this.playSoundCountdown = playSoundCountdown;
+    }
+
+    public String getPlaySoundStartEnd() {
+        return playSoundStartEnd;
+    }
+
+    public void setPlaySoundStartEnd(String playSoundStartEnd) {
+        this.playSoundStartEnd = playSoundStartEnd;
+    }
+
+    public boolean isUseExpBar() {
+        return useExpBar;
+    }
+
+    public void setUseExpBar(boolean useExpBar) {
+        this.useExpBar = useExpBar;
+    }
+
+    public boolean isUseSideBar() {
+        return useSideBar;
+    }
+
+    public void setUseSideBar(boolean useSideBar) {
+        this.useSideBar = useSideBar;
+    }
+
+    public String getMessageFileName() {
+        return messageFileName;
+    }
+
+    public void setMessageFileName(String messageFileName) {
+        this.messageFileName = messageFileName;
+    }
+
+    public String getNextConfig() {
+        return nextConfig;
+    }
+
+    public void setNextConfig(String nextConfig) {
+        this.nextConfig = nextConfig;
+    }
+
+    public boolean isEndWithCTTeamDefeat() {
+        return endWithCTTeamDefeat;
+    }
+
+    public void setEndWithCTTeamDefeat(boolean endWithCTTeamDefeat) {
+        this.endWithCTTeamDefeat = endWithCTTeamDefeat;
+    }
+
+    public boolean isEndWithCTLeaderDefeat() {
+        return endWithCTLeaderDefeat;
+    }
+
+    public void setEndWithCTLeaderDefeat(boolean endWithCTLeaderDefeat) {
+        this.endWithCTLeaderDefeat = endWithCTLeaderDefeat;
+    }
+
+    public boolean isEndWithCTKillTrophy() {
+        return endWithCTKillTrophy;
+    }
+
+    public void setEndWithCTKillTrophy(boolean endWithCTKillTrophy) {
+        this.endWithCTKillTrophy = endWithCTKillTrophy;
+    }
+
+    public int getEndWithTeamPointUnder() {
+        return endWithTeamPointUnder;
+    }
+
+    public void setEndWithTeamPointUnder(int endWithTeamPointUnder) {
+        this.endWithTeamPointUnder = endWithTeamPointUnder;
+    }
+
+    public int getEndWithTeamPointOver() {
+        return endWithTeamPointOver;
+    }
+
+    public void setEndWithTeamPointOver(int endWithTeamPointOver) {
+        this.endWithTeamPointOver = endWithTeamPointOver;
+    }
+
+    public boolean isAnnounceToOnlyTeamMembers() {
+        return announceToOnlyTeamMembers;
+    }
+
+    public void setAnnounceToOnlyTeamMembers(boolean announceToOnlyTeamMembers) {
+        this.announceToOnlyTeamMembers = announceToOnlyTeamMembers;
+    }
+
+    public ExpTimerMessages getMessages() {
+        return messages;
+    }
+
+    public void setMessages(ExpTimerMessages messages) {
+        this.messages = messages;
     }
 }

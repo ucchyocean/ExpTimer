@@ -5,11 +5,18 @@
  */
 package com.github.ucchyocean.et;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 
+import com.github.ucchyocean.ct.ColorTeaming;
+import com.github.ucchyocean.ct.ColorTeamingAPI;
 import com.github.ucchyocean.ct.config.TeamNameSetting;
 import com.github.ucchyocean.ct.event.ColorTeamingTeamscoreChangeEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingTrophyKillEvent;
@@ -17,15 +24,22 @@ import com.github.ucchyocean.ct.event.ColorTeamingWonLeaderEvent;
 import com.github.ucchyocean.ct.event.ColorTeamingWonTeamEvent;
 
 /**
- * ColorTeaming連携機能リスナークラス
+ * ColorTeaming連携クラス
  * @author ucchy
  */
-public class ColorTeamingListener implements Listener {
+public class ColorTeamingBridge implements Listener {
 
     private ExpTimer plugin;
+    private ColorTeamingAPI ctapi;
 
-    protected ColorTeamingListener(ExpTimer plugin) {
+    /**
+     * コンストラクタ
+     * @param plugin ExpTimerのインスタンス
+     * @param colorteaming ColorTeamingのインスタンス
+     */
+    protected ColorTeamingBridge(ExpTimer plugin, Plugin colorteaming) {
         this.plugin = plugin;
+        this.ctapi = ((ColorTeaming)colorteaming).getAPI();
     }
 
     /**
@@ -37,7 +51,7 @@ public class ColorTeamingListener implements Listener {
 
         // 設定オフなら、ここで終了する
         if ( plugin.getConfigData() != null &&
-                !plugin.getConfigData().endWithCTTeamDefeat ) {
+                !plugin.getConfigData().isEndWithCTLeaderDefeat() ) {
             return;
         }
 
@@ -53,7 +67,7 @@ public class ColorTeamingListener implements Listener {
 
         // 設定オフなら、ここで終了する
         if ( plugin.getConfigData() != null &&
-                !plugin.getConfigData().endWithCTLeaderDefeat ) {
+                !plugin.getConfigData().isEndWithCTLeaderDefeat() ) {
             return;
         }
 
@@ -69,7 +83,7 @@ public class ColorTeamingListener implements Listener {
 
         // 設定オフなら、ここで終了する
         if ( plugin.getConfigData() != null &&
-                !plugin.getConfigData().endWithCTKillTrophy ) {
+                !plugin.getConfigData().isEndWithCTKillTrophy() ) {
             return;
         }
 
@@ -87,14 +101,14 @@ public class ColorTeamingListener implements Listener {
         int after = event.getPointAfter();
 
         // ポイントが基準値を下回ったかどうかを確認する。
-        int threshold = plugin.getConfigData().endWithTeamPointUnder;
+        int threshold = plugin.getConfigData().getEndWithTeamPointUnder();
         if ( threshold < before && after <= threshold ) {
             endTask(event.getTeam());
             return;
         }
 
         // ポイントが基準値を上回ったかどうかを確認する。
-        threshold = plugin.getConfigData().endWithTeamPointOver;
+        threshold = plugin.getConfigData().getEndWithTeamPointOver();
         if ( before < threshold && threshold <= after ) {
             endTask(event.getTeam());
             return;
@@ -141,12 +155,32 @@ public class ColorTeamingListener implements Listener {
         if ( configData == null ) {
             return;
         }
-        String msg = configData.messages.get(key);
+        String msg = configData.getMessages().get(key);
         if ( msg == null || msg.equals("") ) {
             return;
         }
         msg = String.format(msg, args);
-        String prefix = configData.messages.get("prefix");
-        Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        String prefix = configData.getMessages().get("prefix");
+        
+        if ( configData.isAnnounceToOnlyTeamMembers() ) {
+            HashMap<String, ArrayList<Player>> members = getTeamMembers();
+            for ( ArrayList<Player> players : members.values() ) {
+                if ( players != null ) {
+                    for ( Player player : players ) {
+                        player.sendMessage(Utility.replaceColorCode(prefix + msg));
+                    }
+                }
+            }
+        } else {
+            Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        }
+    }
+    
+    /**
+     * カラーチーミングのチームに所属しているプレイヤーの一覧を返す
+     * @return チームに所属しているプレイヤー
+     */
+    public HashMap<String, ArrayList<Player>> getTeamMembers() {
+        return ctapi.getAllTeamMembers();
     }
 }

@@ -71,9 +71,9 @@ public class ExpTimerCommand implements TabExecutor {
                 if ( args.length >= 2 ) {
                     if ( args[1].matches("^[0-9]+$") ) {
                         config = plugin.getConfigData().clone();
-                        config.seconds = Integer.parseInt(args[1]);
+                        config.setSeconds(Integer.parseInt(args[1]));
                         if ( args.length >= 3 && args[2].matches("^[0-9]+$")) {
-                            config.readySeconds = Integer.parseInt(args[2]);
+                            config.setReadySeconds(Integer.parseInt(args[2]));
                         }
                     } else {
                         if ( !plugin.configs.containsKey(args[1]) ) {
@@ -193,38 +193,38 @@ public class ExpTimerCommand implements TabExecutor {
             sender.sendMessage(ChatColor.GRAY + "現在の状況：" +
                     ChatColor.WHITE + stat);
             sender.sendMessage(ChatColor.GRAY + "現在の設定名：" +
-                    ChatColor.WHITE + config.name);
-            if ( config.commandsOnStart.size() > 0 ) {
+                    ChatColor.WHITE + config.getName());
+            if ( (config.getCommandsOnStart().size() + config.getConsoleCommandsOnStart().size()) > 0 ) {
                 sender.sendMessage(ChatColor.GRAY + "開始時に実行するコマンド：");
-                for ( String com : config.commandsOnStart ) {
+                for ( String com : config.getCommandsOnStart() ) {
                     sender.sendMessage(ChatColor.WHITE + "  " + com);
                 }
-                for ( String com : config.consoleCommandsOnStart ) {
+                for ( String com : config.getConsoleCommandsOnStart() ) {
                     sender.sendMessage(ChatColor.AQUA + "  " + com);
                 }
             }
-            if ( config.runCommandsOnMidSeconds.size() > 0 ) {
+            if ( config.getRunCommandsOnMidSeconds().size() > 0 ) {
                 StringBuilder timeDesc = new StringBuilder();
-                for ( int i : config.runCommandsOnMidSeconds ) {
+                for ( int i : config.getRunCommandsOnMidSeconds() ) {
                     if ( timeDesc.length() > 0 ) {
                         timeDesc.append(", ");
                     }
                     timeDesc.append(i);
                 }
                 sender.sendMessage(ChatColor.GRAY + timeDesc.toString() + "秒に実行するコマンド：");
-                for ( String com : config.commandsOnMid ) {
+                for ( String com : config.getCommandsOnMid() ) {
                     sender.sendMessage(ChatColor.WHITE + "  " + com);
                 }
-                for ( String com : config.consoleCommandsOnMid ) {
+                for ( String com : config.getConsoleCommandsOnMid() ) {
                     sender.sendMessage(ChatColor.AQUA + "  " + com);
                 }
             }
-            if ( config.commandsOnEnd.size() > 0 ) {
+            if ( (config.getCommandsOnEnd().size() + config.getConsoleCommandsOnEnd().size()) > 0 ) {
                 sender.sendMessage(ChatColor.GRAY + "終了時に実行するコマンド：");
-                for ( String com : config.commandsOnEnd ) {
+                for ( String com : config.getCommandsOnEnd() ) {
                     sender.sendMessage(ChatColor.WHITE + "  " + com);
                 }
-                for ( String com : config.consoleCommandsOnEnd ) {
+                for ( String com : config.getConsoleCommandsOnEnd() ) {
                     sender.sendMessage(ChatColor.AQUA + "  " + com);
                 }
             }
@@ -247,8 +247,8 @@ public class ExpTimerCommand implements TabExecutor {
 
             sender.sendMessage(ChatColor.GRAY + "----- ExpTimer config list -----");
             for ( String key : plugin.configs.keySet() ) {
-                int sec = plugin.configs.get(key).seconds;
-                int ready = plugin.configs.get(key).readySeconds;
+                int sec = plugin.configs.get(key).getSeconds();
+                int ready = plugin.configs.get(key).getReadySeconds();
                 String message = String.format(format, key, sec, ready);
                 sender.sendMessage(message);
             }

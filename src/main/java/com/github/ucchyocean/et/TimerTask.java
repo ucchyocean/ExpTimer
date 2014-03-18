@@ -7,6 +7,7 @@ package com.github.ucchyocean.et;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
@@ -89,21 +90,21 @@ public class TimerTask extends BukkitRunnable {
         this.configData = configData;
 
         // 各種変数の初期化
-        secondsReadyRest = configData.readySeconds;
-        secondsGameRest = configData.seconds;
-        secondsGameMax = configData.seconds;
+        secondsReadyRest = configData.getReadySeconds();
+        secondsGameRest = configData.getSeconds();
+        secondsGameMax = configData.getSeconds();
         isPaused = false;
 
         tickReadyBase = System.currentTimeMillis() +
-                configData.readySeconds * 1000 + OFFSET;
-        tickGameBase = tickReadyBase + configData.seconds * 1000;
+                configData.getReadySeconds() * 1000 + OFFSET;
+        tickGameBase = tickReadyBase + configData.getSeconds() * 1000;
 
         flagStart = false;
         flagEnd = false;
 
         // runCommandsOnMidSecondsの初期化
         runCommandsOnMidSeconds = new ArrayList<Integer>();
-        for ( Integer i : configData.runCommandsOnMidSeconds ) {
+        for ( Integer i : configData.getRunCommandsOnMidSeconds() ) {
             runCommandsOnMidSeconds.add(i);
         }
         Collections.sort(runCommandsOnMidSeconds);
@@ -116,7 +117,7 @@ public class TimerTask extends BukkitRunnable {
 
         // restAlertSecondsの初期化
         restAlertSeconds = new ArrayList<Integer>();
-        for ( Integer i : configData.restAlertSeconds ) {
+        for ( Integer i : configData.getRestAlertSeconds() ) {
             restAlertSeconds.add(i);
         }
         Collections.sort(restAlertSeconds);
@@ -128,7 +129,7 @@ public class TimerTask extends BukkitRunnable {
         }
 
         // objectiveの取得
-        if ( configData.useSideBar ) {
+        if ( configData.isUseSideBar() ) {
             Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
 
             // 既にオブジェクティブがあるなら、いったんクリアする
@@ -164,24 +165,24 @@ public class TimerTask extends BukkitRunnable {
 
         // 条件に応じてアナウンス
         if ( !flagStart &&
-                secondsReadyRest <= configData.countdownOnStart ) {
+                secondsReadyRest <= configData.getCountdownOnStart() ) {
 
             if ( secondsReadyRest > 0 ) {
                 // スタート前のカウントダウン
                 broadcastMessage("preStartSec", secondsReadyRest);
-                if ( configData.playSound ) {
+                if ( configData.isPlaySound() ) {
                     playCountdownSound();
                 }
             } else {
                 // スタート
                 flagStart = true;
                 broadcastMessage("start");
-                if ( configData.playSound ) {
+                if ( configData.isPlaySound() ) {
                     playStartEndSound();
                 }
                 // コマンドの実行
-                plugin.dispatchCommandsBySender(configData.commandsOnStart);
-                plugin.dispatchCommandsByConsole(configData.consoleCommandsOnStart);
+                plugin.dispatchCommandsBySender(configData.getCommandsOnStart());
+                plugin.dispatchCommandsByConsole(configData.getConsoleCommandsOnStart());
             }
 
         } else if ( !flagEnd ) {
@@ -204,8 +205,8 @@ public class TimerTask extends BukkitRunnable {
                         && secondsGameRest <= runCommandsOnMidSeconds.get(index) ) {
                     commandFlags[index] = true;
                     // コマンドの実行
-                    plugin.dispatchCommandsBySender(configData.commandsOnMid);
-                    plugin.dispatchCommandsByConsole(configData.consoleCommandsOnMid);
+                    plugin.dispatchCommandsBySender(configData.getCommandsOnMid());
+                    plugin.dispatchCommandsByConsole(configData.getConsoleCommandsOnMid());
                     break;
                 } else if ( secondsGameRest > runCommandsOnMidSeconds.get(index) ) {
                     break;
@@ -213,17 +214,17 @@ public class TimerTask extends BukkitRunnable {
             }
 
             if ( 0 < secondsGameRest &&
-                    secondsGameRest <= configData.countdownOnEnd ) {
+                    secondsGameRest <= configData.getCountdownOnEnd() ) {
                 // 終了前のカウントダウン
                 broadcastMessage("preEndSec", secondsGameRest);
-                if ( configData.playSound ) {
+                if ( configData.isPlaySound() ) {
                     playCountdownSound();
                 }
             } else if ( secondsGameRest <= 0 ) {
                 // 終了
                 flagEnd = true;
                 broadcastMessage("end");
-                if ( configData.playSound ) {
+                if ( configData.isPlaySound() ) {
                     playStartEndSound();
                 }
                 // タスクの終了を呼び出し
@@ -234,12 +235,12 @@ public class TimerTask extends BukkitRunnable {
         }
 
         // 経験値バーの表示更新
-        if ( configData.useExpBar ) {
+        if ( configData.isUseExpBar() ) {
             ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
         }
 
         // サイドバーの表示更新
-        if ( configData.useSideBar ) {
+        if ( configData.isUseSideBar() ) {
             refreshSidebar();
         }
 
@@ -417,13 +418,27 @@ public class TimerTask extends BukkitRunnable {
      */
     private void broadcastMessage(String key, Object... args) {
 
-        String msg = configData.messages.get(key);
+        String msg = configData.getMessages().get(key);
         if ( msg == null || msg.equals("") ) {
             return;
         }
         msg = String.format(msg, args);
-        String prefix = configData.messages.get("prefix");
-        Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        String prefix = configData.getMessages().get("prefix");
+        
+        if ( configData.isAnnounceToOnlyTeamMembers() && 
+                ExpTimer.getInstance().getColorTeaming() != null ) {
+            HashMap<String, ArrayList<Player>> members = 
+                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
+            for ( ArrayList<Player> players : members.values() ) {
+                if ( players != null ) {
+                    for ( Player player : players ) {
+                        player.sendMessage(Utility.replaceColorCode(prefix + msg));
+                    }
+                }
+            }
+        } else {
+            Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        }
     }
 
     /**
@@ -433,13 +448,27 @@ public class TimerTask extends BukkitRunnable {
     private void broadcastAlertMessage(int seconds) {
 
         String key = "rest" + seconds + "sec";
-        String msg = configData.messages.get(key);
+        String msg = configData.getMessages().get(key);
         if ( msg == null || msg.equals("") ) {
-            msg = configData.messages.get("preEndSec");
+            msg = configData.getMessages().get("preEndSec");
             msg = String.format(msg, seconds);
         }
-        String prefix = configData.messages.get("prefix");
-        Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        String prefix = configData.getMessages().get("prefix");
+        
+        if ( configData.isAnnounceToOnlyTeamMembers() && 
+                ExpTimer.getInstance().getColorTeaming() != null ) {
+            HashMap<String, ArrayList<Player>> members = 
+                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
+            for ( ArrayList<Player> players : members.values() ) {
+                if ( players != null ) {
+                    for ( Player player : players ) {
+                        player.sendMessage(Utility.replaceColorCode(prefix + msg));
+                    }
+                }
+            }
+        } else {
+            Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        }
     }
 
     /**
@@ -447,7 +476,7 @@ public class TimerTask extends BukkitRunnable {
      */
     private void playCountdownSound() {
 
-        String name = configData.playSoundCountdown;
+        String name = configData.getPlaySoundCountdown();
         Sound sound;
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
@@ -464,7 +493,7 @@ public class TimerTask extends BukkitRunnable {
      */
     private void playStartEndSound() {
 
-        String name = configData.playSoundStartEnd;
+        String name = configData.getPlaySoundStartEnd();
         Sound sound;
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
