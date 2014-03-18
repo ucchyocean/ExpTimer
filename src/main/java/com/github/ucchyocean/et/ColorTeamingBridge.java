@@ -161,7 +161,7 @@ public class ColorTeamingBridge implements Listener {
         }
         msg = String.format(msg, args);
         String prefix = configData.getMessages().get("prefix");
-        
+
         if ( configData.isAnnounceToOnlyTeamMembers() ) {
             HashMap<String, ArrayList<Player>> members = getTeamMembers();
             for ( ArrayList<Player> players : members.values() ) {
@@ -175,7 +175,7 @@ public class ColorTeamingBridge implements Listener {
             Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
         }
     }
-    
+
     /**
      * カラーチーミングのチームに所属しているプレイヤーの一覧を返す
      * @return チームに所属しているプレイヤー

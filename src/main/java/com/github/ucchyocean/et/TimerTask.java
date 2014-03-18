@@ -424,10 +424,10 @@ public class TimerTask extends BukkitRunnable {
         }
         msg = String.format(msg, args);
         String prefix = configData.getMessages().get("prefix");
-        
-        if ( configData.isAnnounceToOnlyTeamMembers() && 
+
+        if ( configData.isAnnounceToOnlyTeamMembers() &&
                 ExpTimer.getInstance().getColorTeaming() != null ) {
-            HashMap<String, ArrayList<Player>> members = 
+            HashMap<String, ArrayList<Player>> members =
                     ExpTimer.getInstance().getColorTeaming().getTeamMembers();
             for ( ArrayList<Player> players : members.values() ) {
                 if ( players != null ) {
@@ -454,10 +454,10 @@ public class TimerTask extends BukkitRunnable {
             msg = String.format(msg, seconds);
         }
         String prefix = configData.getMessages().get("prefix");
-        
-        if ( configData.isAnnounceToOnlyTeamMembers() && 
+
+        if ( configData.isAnnounceToOnlyTeamMembers() &&
                 ExpTimer.getInstance().getColorTeaming() != null ) {
-            HashMap<String, ArrayList<Player>> members = 
+            HashMap<String, ArrayList<Player>> members =
                     ExpTimer.getInstance().getColorTeaming().getTeamMembers();
             for ( ArrayList<Player> players : members.values() ) {
                 if ( players != null ) {
@@ -483,8 +483,22 @@ public class TimerTask extends BukkitRunnable {
         } else {
             sound = Sound.NOTE_STICKS;
         }
-        for ( Player player : Bukkit.getOnlinePlayers() ) {
-            player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
+
+        if ( configData.isAnnounceToOnlyTeamMembers() &&
+                ExpTimer.getInstance().getColorTeaming() != null ) {
+            HashMap<String, ArrayList<Player>> members =
+                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
+            for ( ArrayList<Player> players : members.values() ) {
+                if ( players != null ) {
+                    for ( Player player : players ) {
+                        player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
+                    }
+                }
+            }
+        } else {
+            for ( Player player : Bukkit.getOnlinePlayers() ) {
+                player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
+            }
         }
     }
 
@@ -500,8 +514,22 @@ public class TimerTask extends BukkitRunnable {
         } else {
             sound = Sound.NOTE_PLING;
         }
-        for ( Player player : Bukkit.getOnlinePlayers() ) {
-            player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
+
+        if ( configData.isAnnounceToOnlyTeamMembers() &&
+                ExpTimer.getInstance().getColorTeaming() != null ) {
+            HashMap<String, ArrayList<Player>> members =
+                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
+            for ( ArrayList<Player> players : members.values() ) {
+                if ( players != null ) {
+                    for ( Player player : players ) {
+                        player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
+                    }
+                }
+            }
+        } else {
+            for ( Player player : Bukkit.getOnlinePlayers() ) {
+                player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
+            }
         }
     }
 

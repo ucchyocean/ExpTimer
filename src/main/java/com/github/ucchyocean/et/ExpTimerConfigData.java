@@ -90,7 +90,7 @@ public class ExpTimerConfigData {
 
     /** ColorTeamingのチームポイントが、基準値を上回ったら、タイマーを終了する */
     private int endWithTeamPointOver;
-    
+
     /** ColorTeamingで設定されたチームメンバーのみに、アナウンスメッセージを流すかどうか */
     private boolean announceToOnlyTeamMembers;
 
@@ -149,7 +149,7 @@ public class ExpTimerConfigData {
             data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
             data.endWithTeamPointUnder = section.getInt("endWithTeamPointUnder", -99999);
             data.endWithTeamPointOver = section.getInt("endWithTeamPointOver", 99999);
-            data.announceToOnlyTeamMembers = 
+            data.announceToOnlyTeamMembers =
                     section.getBoolean("announceToOnlyTeamMembers", false);
 
         } else {
@@ -206,7 +206,7 @@ public class ExpTimerConfigData {
                 section.getInt("endWithTeamPointUnder", defaults.endWithTeamPointUnder);
             data.endWithTeamPointOver =
                 section.getInt("endWithTeamPointOver", defaults.endWithTeamPointOver);
-            data.announceToOnlyTeamMembers = 
+            data.announceToOnlyTeamMembers =
                 section.getBoolean(
                     "announceToOnlyTeamMembers", defaults.announceToOnlyTeamMembers);
 
@@ -310,9 +310,9 @@ public class ExpTimerConfigData {
         }
         return data;
     }
-    
+
     // ===== 以下、自動生成されたgetterとsetter
-    
+
     public String getName() {
         return name;
     }
