@@ -12,6 +12,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -30,6 +31,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
 
     private static ExpTimer instance;
     private TimerTask timer;
+    private ExpTimerCommand executor;
 
     protected ExpTimerConfigData configData;
     protected HashMap<String, ExpTimerConfigData> configs;
@@ -48,9 +50,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
         reloadConfigData();
 
         // コマンドの登録
-        ExpTimerCommand executor = new ExpTimerCommand(this);
-        getCommand("exptimer").setExecutor(executor);
-        getCommand("exptimer").setTabCompleter(executor);
+        executor = new ExpTimerCommand(this);
 
         // イベントの登録
         getServer().getPluginManager().registerEvents(this, this);
@@ -82,6 +82,22 @@ public class ExpTimer extends JavaPlugin implements Listener {
             getLogger().warning("タイマーが残ったままです。強制終了します。");
             cancelTask();
         }
+    }
+
+    /**
+     * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
+     */
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        return executor.onCommand(sender, command, label, args);
+    }
+
+    /**
+     * @see org.bukkit.plugin.java.JavaPlugin#onTabComplete(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
+     */
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return executor.onTabComplete(sender, command, alias, args);
     }
 
     /**
@@ -354,7 +370,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
     protected static ExpTimer getInstance() {
         return instance;
     }
-    
+
     /**
      * ColorTeaming連携時に、ColorTeamingBridgeを返す
      * @return ColorTeamingBridge、非連携時にはnullになることに注意

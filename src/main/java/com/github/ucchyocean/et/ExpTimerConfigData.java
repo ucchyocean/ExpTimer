@@ -101,6 +101,34 @@ public class ExpTimerConfigData {
      * コンストラクタ（外部からのアクセス不可）
      */
     private ExpTimerConfigData() {
+
+        // 初期値の挿入
+        seconds = 600;
+        readySeconds = 10;
+        commandsOnStart = new ArrayList<String>();
+        commandsOnMid = new ArrayList<String>();
+        commandsOnEnd = new ArrayList<String>();
+        consoleCommandsOnStart = new ArrayList<String>();
+        consoleCommandsOnMid = new ArrayList<String>();
+        consoleCommandsOnEnd = new ArrayList<String>();
+        countdownOnStart = 3;
+        countdownOnEnd = 5;
+        runCommandsOnMidSeconds = new ArrayList<Integer>();
+        restAlertSeconds = new ArrayList<Integer>();
+        restAlertSeconds.add(60);
+        restAlertSeconds.add(180);
+        restAlertSeconds.add(300);
+        playSound = true;
+        playSoundCountdown = "NOTE_STICKS";
+        playSoundStartEnd = "NOTE_PLING";
+        useExpBar = true;
+        useSideBar = false;
+        endWithCTTeamDefeat = false;
+        endWithCTLeaderDefeat = false;
+        endWithCTKillTrophy = false;
+        endWithTeamPointUnder = -99999;
+        endWithTeamPointOver = 99999;
+        announceToOnlyTeamMembers = false;
     }
 
     /**
@@ -117,42 +145,43 @@ public class ExpTimerConfigData {
 
         data.name = name;
 
-        if ( defaults == null ) {
-            data.seconds = section.getInt("seconds", 600);
-            data.readySeconds = section.getInt("readySeconds", 10);
+        if ( section != null && defaults == null ) {
+            data.seconds = section.getInt("seconds", data.seconds);
+            data.readySeconds = section.getInt("readySeconds", data.readySeconds);
             data.commandsOnStart = section.getStringList("commandsOnStart");
             data.commandsOnMid = section.getStringList("commandsOnMid");
             data.commandsOnEnd = section.getStringList("commandsOnEnd");
             data.consoleCommandsOnStart = section.getStringList("consoleCommandsOnStart");
             data.consoleCommandsOnMid = section.getStringList("consoleCommandsOnMid");
             data.consoleCommandsOnEnd = section.getStringList("consoleCommandsOnEnd");
-            data.countdownOnStart = section.getInt("countdownOnStart", 3);
-            data.countdownOnEnd = section.getInt("countdownOnEnd", 5);
+            data.countdownOnStart = section.getInt("countdownOnStart", data.countdownOnStart);
+            data.countdownOnEnd = section.getInt("countdownOnEnd", data.countdownOnEnd);
             data.runCommandsOnMidSeconds = section.getIntegerList("runCommandsOnMidSeconds");
             if ( section.contains("restAlertSeconds") ) {
                 data.restAlertSeconds = section.getIntegerList("restAlertSeconds");
-            } else {
-                data.restAlertSeconds = new ArrayList<Integer>();
-                data.restAlertSeconds.add(60);
-                data.restAlertSeconds.add(180);
-                data.restAlertSeconds.add(300);
             }
-            data.playSound = section.getBoolean("playSound", true);
-            data.playSoundCountdown = section.getString("playSoundCountdown", "NOTE_STICKS");
-            data.playSoundStartEnd = section.getString("playSoundStartEnd", "NOTE_PLING");
-            data.useExpBar = section.getBoolean("useExpBar", true);
-            data.useSideBar = section.getBoolean("useSideBar", false);
+            data.playSound = section.getBoolean("playSound", data.playSound);
+            data.playSoundCountdown = section.getString("playSoundCountdown", data.playSoundCountdown);
+            data.playSoundStartEnd = section.getString("playSoundStartEnd", data.playSoundStartEnd);
+            data.useExpBar = section.getBoolean("useExpBar", data.useExpBar);
+            data.useSideBar = section.getBoolean("useSideBar", data.useSideBar);
             data.messageFileName = section.getString("messageFileName");
             data.nextConfig = section.getString("nextConfig");
-            data.endWithCTTeamDefeat = section.getBoolean("endWithCTTeamDefeat", false);
-            data.endWithCTLeaderDefeat = section.getBoolean("endWithCTLeaderDefeat", false);
-            data.endWithCTKillTrophy = section.getBoolean("endWithCTKillTrophy", false);
-            data.endWithTeamPointUnder = section.getInt("endWithTeamPointUnder", -99999);
-            data.endWithTeamPointOver = section.getInt("endWithTeamPointOver", 99999);
+            data.endWithCTTeamDefeat =
+                    section.getBoolean("endWithCTTeamDefeat", data.endWithCTTeamDefeat);
+            data.endWithCTLeaderDefeat =
+                    section.getBoolean("endWithCTLeaderDefeat", data.endWithCTLeaderDefeat);
+            data.endWithCTKillTrophy =
+                    section.getBoolean("endWithCTKillTrophy", data.endWithCTKillTrophy);
+            data.endWithTeamPointUnder =
+                    section.getInt("endWithTeamPointUnder", data.endWithTeamPointUnder);
+            data.endWithTeamPointOver =
+                    section.getInt("endWithTeamPointOver", data.endWithTeamPointOver);
             data.announceToOnlyTeamMembers =
-                    section.getBoolean("announceToOnlyTeamMembers", false);
+                    section.getBoolean("announceToOnlyTeamMembers", data.announceToOnlyTeamMembers);
 
-        } else {
+        } else if ( section != null ) {
+
             data.seconds = section.getInt("seconds", defaults.seconds);
             data.readySeconds = section.getInt("readySeconds", defaults.readySeconds);
             if ( section.contains("commandsOnStart") )
