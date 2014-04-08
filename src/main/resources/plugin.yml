@@ -3,7 +3,7 @@ version: ${project.version}
 main: com.github.ucchyocean.et.ExpTimer
 author: ucchy
 description: 経験値バータイマー
-softdepend: [ColorTeaming]
+softdepend: [ColorTeaming, BarAPI]
 commands:
   exptimer:
     description: 経験値バータイマーコマンド

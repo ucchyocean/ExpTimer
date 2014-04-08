@@ -236,7 +236,7 @@ public class TimerTask extends BukkitRunnable {
 
         // 経験値バーの表示更新
         if ( configData.isUseExpBar() ) {
-            ExpTimer.setExpLevel(secondsGameRest, secondsGameMax);
+            refreshExpbar();
         }
 
         // サイドバーの表示更新
@@ -244,6 +244,10 @@ public class TimerTask extends BukkitRunnable {
             refreshSidebar();
         }
 
+        // ボスバーの表示更新
+        if ( configData.isUseBossBar() ) {
+            refreshBossbar();
+        }
     }
 
     /**
@@ -364,8 +368,45 @@ public class TimerTask extends BukkitRunnable {
     }
 
     /**
+     * 経験値バーの表示を更新する
+     */
+    private void refreshExpbar() {
+
+        float progress = (float)secondsGameRest / (float)secondsGameMax;
+        if ( progress > 1.0f ) {
+            progress = 1.0f;
+        } else if ( progress < 0.0f ) {
+            progress = 0.0f;
+        }
+
+        int level = secondsGameRest;
+        if ( level > 24000 ) {
+            level = 24000;
+        } else if ( level < 0 ) {
+            level = 0;
+        }
+
+        for ( Player player : getRefreshTargets() ) {
+            player.setLevel(level);
+            player.setExp(progress);
+        }
+    }
+
+    /**
+     * 経験値バーの表示を0にリセットする
+     */
+    protected void resetExpbar() {
+
+        for ( Player player : getRefreshTargets() ) {
+            player.setLevel(0);
+            player.setExp(0);
+        }
+    }
+
+    /**
      * サイドバー表示を更新する
      */
+    @SuppressWarnings("deprecation")
     private void refreshSidebar() {
 
         if ( objective == null ) {
@@ -412,6 +453,49 @@ public class TimerTask extends BukkitRunnable {
     }
 
     /**
+     * ボスバー表示を更新する。
+     */
+    private void refreshBossbar() {
+
+        if ( ExpTimer.getInstance().getBarAPI() == null ) {
+            return;
+        }
+
+        float progress = (float)secondsGameRest / (float)secondsGameMax;
+        if ( progress > 1.0f ) {
+            progress = 1.0f;
+        } else if ( progress < 0.0f ) {
+            progress = 0.0f;
+        }
+        progress *= 100;
+
+        int hour = secondsGameRest / 3600;
+        int minute = (secondsGameRest - hour * 3600) / 60;
+        int second = secondsGameRest - hour * 3600 - minute * 60;
+        String message = String.format(
+                ChatColor.GOLD + "残り時間 - %02d:%02d:%02d", hour, minute, second);
+
+        BarAPIBridge barapi = ExpTimer.getInstance().getBarAPI();
+        for ( Player player : getRefreshTargets() ) {
+            barapi.setMessage(player, message, progress);
+        }
+    }
+
+    /**
+     * ボスバーを非表示にする。
+     */
+    protected void removeBossbar() {
+
+        if ( ExpTimer.getInstance().getBarAPI() == null ) {
+            return;
+        }
+
+        for ( Player player : getRefreshTargets() ) {
+            ExpTimer.getInstance().getBarAPI().removeBar(player);
+        }
+    }
+
+    /**
      * メッセージリソースを取得し、ブロードキャストする
      * @param key メッセージキー
      * @param args メッセージの引数
@@ -425,19 +509,8 @@ public class TimerTask extends BukkitRunnable {
         msg = String.format(msg, args);
         String prefix = configData.getMessages().get("prefix");
 
-        if ( configData.isAnnounceToOnlyTeamMembers() &&
-                ExpTimer.getInstance().getColorTeaming() != null ) {
-            HashMap<String, ArrayList<Player>> members =
-                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
-            for ( ArrayList<Player> players : members.values() ) {
-                if ( players != null ) {
-                    for ( Player player : players ) {
-                        player.sendMessage(Utility.replaceColorCode(prefix + msg));
-                    }
-                }
-            }
-        } else {
-            Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        for ( Player player : getRefreshTargets() ) {
+            player.sendMessage(Utility.replaceColorCode(prefix + msg));
         }
     }
 
@@ -455,19 +528,8 @@ public class TimerTask extends BukkitRunnable {
         }
         String prefix = configData.getMessages().get("prefix");
 
-        if ( configData.isAnnounceToOnlyTeamMembers() &&
-                ExpTimer.getInstance().getColorTeaming() != null ) {
-            HashMap<String, ArrayList<Player>> members =
-                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
-            for ( ArrayList<Player> players : members.values() ) {
-                if ( players != null ) {
-                    for ( Player player : players ) {
-                        player.sendMessage(Utility.replaceColorCode(prefix + msg));
-                    }
-                }
-            }
-        } else {
-            Bukkit.broadcastMessage(Utility.replaceColorCode(prefix + msg));
+        for ( Player player : getRefreshTargets() ) {
+            player.sendMessage(Utility.replaceColorCode(prefix + msg));
         }
     }
 
@@ -484,21 +546,8 @@ public class TimerTask extends BukkitRunnable {
             sound = Sound.NOTE_STICKS;
         }
 
-        if ( configData.isAnnounceToOnlyTeamMembers() &&
-                ExpTimer.getInstance().getColorTeaming() != null ) {
-            HashMap<String, ArrayList<Player>> members =
-                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
-            for ( ArrayList<Player> players : members.values() ) {
-                if ( players != null ) {
-                    for ( Player player : players ) {
-                        player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
-                    }
-                }
-            }
-        } else {
-            for ( Player player : Bukkit.getOnlinePlayers() ) {
-                player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
-            }
+        for ( Player player : getRefreshTargets() ) {
+            player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
         }
     }
 
@@ -515,21 +564,8 @@ public class TimerTask extends BukkitRunnable {
             sound = Sound.NOTE_PLING;
         }
 
-        if ( configData.isAnnounceToOnlyTeamMembers() &&
-                ExpTimer.getInstance().getColorTeaming() != null ) {
-            HashMap<String, ArrayList<Player>> members =
-                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
-            for ( ArrayList<Player> players : members.values() ) {
-                if ( players != null ) {
-                    for ( Player player : players ) {
-                        player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
-                    }
-                }
-            }
-        } else {
-            for ( Player player : Bukkit.getOnlinePlayers() ) {
-                player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
-            }
+        for ( Player player : getRefreshTargets() ) {
+            player.playSound(player.getEyeLocation(), sound, 1.0F, 1.0F);
         }
     }
 
@@ -562,5 +598,32 @@ public class TimerTask extends BukkitRunnable {
         if ( task != null ) {
             Bukkit.getScheduler().cancelTask(task.getTaskId());
         }
+    }
+
+    /**
+     * コンフィグ内容に応じて、タイマー表示対象のプレイヤーリストを取得する
+     * @return タイマー表示対象プレイヤー
+     */
+    private ArrayList<Player> getRefreshTargets() {
+
+        ArrayList<Player> targets = new ArrayList<Player>();
+        if ( configData.isAnnounceToOnlyTeamMembers() &&
+                ExpTimer.getInstance().getColorTeaming() != null ) {
+            HashMap<String, ArrayList<Player>> members =
+                    ExpTimer.getInstance().getColorTeaming().getTeamMembers();
+            for ( ArrayList<Player> players : members.values() ) {
+                if ( players != null ) {
+                    for ( Player player : players ) {
+                        targets.add(player);
+                    }
+                }
+            }
+        } else {
+            for ( Player player : Bukkit.getOnlinePlayers() ) {
+                targets.add(player);
+            }
+        }
+
+        return targets;
     }
 }

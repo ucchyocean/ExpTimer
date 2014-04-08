@@ -36,7 +36,8 @@ public class ExpTimer extends JavaPlugin implements Listener {
     protected ExpTimerConfigData configData;
     protected HashMap<String, ExpTimerConfigData> configs;
     private CommandSender currentCommandSender;
-    private ColorTeamingBridge bridge;
+    private ColorTeamingBridge ctbridge;
+    private BarAPIBridge babridge;
 
     /**
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -62,12 +63,17 @@ public class ExpTimer extends JavaPlugin implements Listener {
             if ( Utility.isUpperVersion(ctversion, "2.3.2") ) {
                 getLogger().info("ColorTeaming was loaded. "
                         + getDescription().getName() + " is in cooperation with ColorTeaming.");
-                bridge = new ColorTeamingBridge(this, temp);
-                getServer().getPluginManager().registerEvents(bridge, this);
+                ctbridge = new ColorTeamingBridge(this, temp);
+                getServer().getPluginManager().registerEvents(ctbridge, this);
             } else {
                 getLogger().warning("ColorTeaming was too old. The cooperation feature will be disabled.");
                 getLogger().warning("NOTE: Please use ColorTeaming v2.3.2 or later version.");
             }
+        }
+
+        // BarAPIが居るかどうかの確認
+        if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
+            babridge = new BarAPIBridge();
         }
     }
 
@@ -134,31 +140,6 @@ public class ExpTimer extends JavaPlugin implements Listener {
     }
 
     /**
-     * 全プレイヤーの経験値レベルを設定する
-     * @param level 設定するレベル
-     */
-    protected static void setExpLevel(int level, int max) {
-
-        float progress = (float)level / (float)max;
-        if ( progress > 1.0f ) {
-            progress = 1.0f;
-        } else if ( progress < 0.0f ) {
-            progress = 0.0f;
-        }
-        if ( level > 24000 ) {
-            level = 24000;
-        } else if ( level < 0 ) {
-            level = 0;
-        }
-
-        Player[] players = instance.getServer().getOnlinePlayers();
-        for ( Player player : players ) {
-            player.setLevel(level);
-            player.setExp(progress);
-        }
-    }
-
-    /**
      * 新しいタスクを開始する
      * @param config コンフィグ。nullならそのままconfigを変更せずにタスクを開始する
      * @param sender コマンド実行者。nullならcurrentCommandSenderがそのまま引き継がれる
@@ -200,14 +181,19 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 timer.removeSidebar();
             }
 
+            // 経験値バーのクリア
+            if ( configData.isUseExpBar() ) {
+                timer.resetExpbar();
+            }
+
+            // ボスバーのクリア
+            if ( configData.isUseBossBar() ) {
+                timer.removeBossbar();
+            }
+
             // タスクを終了する
             timer.endTimer();
             timer = null;
-
-            // 経験値バーのクリア
-            if ( configData.isUseExpBar() ) {
-                ExpTimer.setExpLevel(0, 1);
-            }
         }
     }
 
@@ -376,6 +362,14 @@ public class ExpTimer extends JavaPlugin implements Listener {
      * @return ColorTeamingBridge、非連携時にはnullになることに注意
      */
     protected ColorTeamingBridge getColorTeaming() {
-        return bridge;
+        return ctbridge;
+    }
+
+    /**
+     * BarAPI連携時に、BarAPIBridgeを返す
+     * @return BarAPIBridge、非連携時にはnullになることに注意
+     */
+    protected BarAPIBridge getBarAPI() {
+        return babridge;
     }
 }
