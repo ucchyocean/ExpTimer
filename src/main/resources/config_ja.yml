@@ -30,7 +30,8 @@ default:
 
 # 100秒のタイマー設定サンプルです。/timer start Timer1 で、実行することが可能です。
 # commandsOnStartにコマンドを設定すると、タイマー開始時に、
-# commandsOnEndにコマンドを設定すると、タイマー終了時に、それぞれのコマンドが実行されます。
+# commandsOnEndにコマンドを設定すると、タイマー終了時に、
+# それぞれのコマンドが実行されます。
 Timer1:
   seconds: 100
   readySeconds: 10
@@ -39,6 +40,10 @@ Timer1:
 
 # タイマー開始と同時にホワイトリストをオフにし、
 # タイマー終了と同時に全員キックしてホワイトリストをオンにするサンプルです。
+# コマンドブロックのコマンドパラメータ（@a や @p など）が使用可能です。
+# また、useSideBar、useBossBar を true に設定すると、それぞれ
+# サイドバー、ボスMOBの体力バーを、タイマーのゲージとして使用可能です。
+# （useBossBar を使用するには、BarAPIプラグインを別途導入してください。）
 Timer2:
   seconds: 1200
   readySeconds: 10
