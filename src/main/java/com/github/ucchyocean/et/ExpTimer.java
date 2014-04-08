@@ -72,7 +72,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
         }
 
         // BarAPIが居るかどうかの確認
-        if ( getServer().getPluginManager().isPluginEnabled("ColorTeaming") ) {
+        if ( getServer().getPluginManager().isPluginEnabled("BarAPI") ) {
             babridge = new BarAPIBridge();
         }
     }
