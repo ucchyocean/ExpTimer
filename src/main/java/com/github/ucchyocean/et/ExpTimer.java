@@ -309,8 +309,8 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 Player[] players = PlayerSelector.getPlayers(location, pattern);
                 if ( players != null ) {
                     for ( Player p : players ) {
-                        Bukkit.dispatchCommand(sender,
-                                command.replaceAll(pattern, p.getName()));
+                        String com = command.replace(pattern, p.getName());
+                        Bukkit.dispatchCommand(sender, com);
                     }
                 }
             } else {

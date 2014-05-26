@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.ucchyocean</groupId>
   <artifactId>ExpTimer</artifactId>
-  <version>2.3.2</version>
+  <version>2.3.3</version>
   <description>Experience-Bar Timer Plugin</description>
 
   <licenses>
@@ -67,7 +67,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.7.5-R0.1-SNAPSHOT</version>
+      <version>1.7.9-R0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>me.confuser</groupId>
@@ -77,7 +77,7 @@
     <dependency>
       <groupId>com.github.ucchyocean</groupId>
       <artifactId>ColorTeaming</artifactId>
-      <version>2.3.4</version>
+      <version>2.3.6</version>
     </dependency>
   </dependencies>
 </project>

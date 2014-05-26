@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 
 /**
@@ -74,7 +75,7 @@ public class TimerTask extends BukkitRunnable {
     private Objective objective;
 
     // 現在表示中のサイドバーアイテム
-    private OfflinePlayer sidebarItem;
+    private String sidebarItem;
 
     // コンフィグデータ
     private ExpTimerConfigData configData;
@@ -406,7 +407,6 @@ public class TimerTask extends BukkitRunnable {
     /**
      * サイドバー表示を更新する
      */
-    @SuppressWarnings("deprecation")
     private void refreshSidebar() {
 
         if ( objective == null ) {
@@ -420,15 +420,13 @@ public class TimerTask extends BukkitRunnable {
         String name = String.format(ChatColor.RED + "%02d:%02d:", hour, minute);
 
         if ( sidebarItem == null ) {
-            sidebarItem = Bukkit.getOfflinePlayer(name);
-        } else if ( !name.equals(sidebarItem.getName()) ) {
-            objective.getScore(sidebarItem).setScore(0);
-            Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
-            sb.resetScores(sidebarItem);
-            sidebarItem = Bukkit.getOfflinePlayer(name);
+            sidebarItem = name;
+        } else if ( !name.equals(sidebarItem) ) {
+            removeScore(objective, sidebarItem);
+            sidebarItem = name;
         }
 
-        objective.getScore(sidebarItem).setScore(second);
+        getScore(objective, sidebarItem).setScore(second);
     }
 
     /**
@@ -436,14 +434,12 @@ public class TimerTask extends BukkitRunnable {
      */
     protected void removeSidebar() {
 
-        Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
-
         if ( sidebarItem != null ) {
-            objective.getScore(sidebarItem).setScore(0);
-            sb.resetScores(sidebarItem);
+            removeScore(objective, sidebarItem);
         }
         sidebarItem = null;
 
+        Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
         Objective sideObj = sb.getObjective(DisplaySlot.SIDEBAR);
         if ( sideObj != null && sideObj.getName().equals("exptimer") ) {
             sb.clearSlot(DisplaySlot.SIDEBAR);
@@ -461,11 +457,19 @@ public class TimerTask extends BukkitRunnable {
             return;
         }
 
+        BarAPIBridge barapi = ExpTimer.getInstance().getBarAPI();
+
         float progress = (float)secondsGameRest / (float)secondsGameMax;
+        if ( secondsGameRest <= 0 || progress < 0.0f ) {
+            // BarAPIを消去して終わる
+            for ( Player player : getRefreshTargets() ) {
+                barapi.removeBar(player);
+            }
+            return;
+        }
+
         if ( progress > 1.0f ) {
             progress = 1.0f;
-        } else if ( progress < 0.0f ) {
-            progress = 0.0f;
         }
         progress *= 100;
 
@@ -475,7 +479,6 @@ public class TimerTask extends BukkitRunnable {
         String message = String.format(
                 ChatColor.GOLD + "残り時間 - %02d:%02d:%02d", hour, minute, second);
 
-        BarAPIBridge barapi = ExpTimer.getInstance().getBarAPI();
         for ( Player player : getRefreshTargets() ) {
             barapi.setMessage(player, message, progress);
         }
@@ -625,5 +628,38 @@ public class TimerTask extends BukkitRunnable {
         }
 
         return targets;
+    }
+
+    /**
+     * スコア項目を取得する
+     * @param objective
+     * @param name
+     * @return
+     */
+    private static Score getScore(Objective objective, String name) {
+
+        if ( Utility.isCB178orLater() ) {
+            return objective.getScore(name);
+        } else {
+            @SuppressWarnings("deprecation")
+            Score score = objective.getScore(Bukkit.getOfflinePlayer(name));
+            return score;
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void removeScore(Objective objective, String name) {
+
+        Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+
+        if ( Utility.isCB178orLater() ) {
+            objective.getScore(name).setScore(0);
+            sb.resetScores(name);
+        } else {
+            OfflinePlayer item = Bukkit.getOfflinePlayer(name);
+            Score score = objective.getScore(item);
+            score.setScore(0);
+            sb.resetScores(item);
+        }
     }
 }

@@ -37,17 +37,13 @@ public class PlayerSelector {
     private static final Pattern c = Pattern.compile("\\G(\\w+)=([-!]?[\\w-]*)(?:$|,)");
 
     public static Player[] getPlayers(Location location, String s) {
-        
-        if ( location == null ) {
-            return null;
-        }
 
         Matcher matcher = a.matcher(s);
 
         if (!matcher.matches()) {
             return null;
         }
-        
+
         Map<String, String> map = h(matcher.group(2));
         String s1 = matcher.group(1);
         int i = c(s1);
@@ -58,7 +54,10 @@ public class PlayerSelector {
         int j1 = -1; //EnumGamemode.NONE;
         GameMode mode = null;
 
-        Location loc = location.clone();
+        Location loc = null;
+        if ( location != null ) {
+            loc = location.clone();
+        }
         Map<String, Integer> map1 = a(map);
         String s2 = null;
         String s3 = null;
@@ -82,17 +81,17 @@ public class PlayerSelector {
             l = a((String) map.get("l"), l);
         }
 
-        if (map.containsKey("x")) {
+        if (map.containsKey("x") && location != null) {
             loc.setX( a((String) map.get("x"), location.getX()) );
             flag = true;
         }
 
-        if (map.containsKey("y")) {
+        if (map.containsKey("y") && location != null) {
             loc.setY( a((String) map.get("y"), location.getY()) );
             flag = true;
         }
 
-        if (map.containsKey("z")) {
+        if (map.containsKey("z") && location != null) {
             loc.setZ( a((String) map.get("z"), location.getZ()) );
             flag = true;
         }
@@ -124,13 +123,13 @@ public class PlayerSelector {
         List<Player> list;
 
         if (!s1.equals("p") && !s1.equals("a")) {
-            if (!s1.equals("r")) {
-                return null;
-            } else {
+            if (s1.equals("r")) {
                 list = a(loc, i, j, 0, mode, k, l, map1, s2, s3, world);
                 Collections.shuffle(list);
                 list = list.subList(0, Math.min(i1, list.size()));
                 return list != null && !list.isEmpty() ? (Player[]) list.toArray(new Player[0]) : new Player[0];
+            } else {
+                return null;
             }
         } else {
             list = a(loc, i, j, i1, mode, k, l, map1, s2, s3, world);
@@ -139,11 +138,11 @@ public class PlayerSelector {
     }
 
     private static Map<String, Integer> a(Map<String, String> map) {
-        
+
         HashMap<String, Integer> hashmap = new HashMap<String, Integer>();
 
         for ( String s : map.keySet() ) {
- 
+
             if (s.startsWith("score_") && s.length() > "score_".length()) {
                 String s1 = s.substring("score_".length());
 
@@ -155,7 +154,7 @@ public class PlayerSelector {
     }
 
     public static boolean isList(String s) {
-        
+
         Matcher matcher = a.matcher(s);
 
         if (matcher.matches()) {
@@ -174,7 +173,7 @@ public class PlayerSelector {
     }
 
     public static boolean isPattern(String s, String s1) {
-        
+
         Matcher matcher = a.matcher(s);
 
         if (matcher.matches()) {
@@ -211,7 +210,7 @@ public class PlayerSelector {
     }
 
     private static Map<String, String> h(String s) {
-        
+
         HashMap<String, String> hashmap = new HashMap<String, String>();
 
         if (s == null) {
@@ -258,9 +257,9 @@ public class PlayerSelector {
 
         return hashmap;
     }
-    
+
     private static int a(String s, int i) {
-        
+
         int j = i;
 
         try {
@@ -273,7 +272,7 @@ public class PlayerSelector {
     }
 
     private static double a(String s, double d0) {
-        
+
         double d1 = d0;
 
         try {
@@ -284,15 +283,15 @@ public class PlayerSelector {
 
         return d1;
     }
-    
+
     private static List<Player> a(final Location location, int i, int j, int k, GameMode l, int i1, int j1, Map<String, Integer> map, String s, String s1, World world) {
 
         List<Player> list = new ArrayList<Player>();
         boolean flag = k < 0;
         boolean flag1 = s != null && s.startsWith("!");
         boolean flag2 = s1 != null && s1.startsWith("!");
-        int k1 = i * i;
-        int l1 = j * j;
+//        int k1 = i * i;
+//        int l1 = j * j;
 
         k = k >= 0 ? k : -k;
         if (flag1) {
@@ -319,7 +318,7 @@ public class PlayerSelector {
                 if (location != null && (i > 0 || j > 0)) {
                     double f = location.distance(player.getLocation());
 
-                    if (i > 0 && f < k1 || j > 0 && f > l1) {
+                    if (i > 0 && f < i || j > 0 && f > j) {
                         continue;
                     }
                 }
@@ -357,11 +356,11 @@ public class PlayerSelector {
     }
 
     private static boolean a(Player player, Map<String, Integer> map) {
-        
+
         if ( map == null || map.size() == 0 ) {
             return true;
         }
-        
+
         Iterator<Entry<String, Integer>> iterator = map.entrySet().iterator();
 
         Entry<String, Integer> entry;
@@ -389,16 +388,33 @@ public class PlayerSelector {
                 return false;
             }
 
-            Score score = objective.getScore(player);
+            Score score = getScore(objective, player);
 
             i = score.getScore();
             if (i < (entry.getValue()).intValue() && flag) {
                 return false;
             }
-            
+
         } while (i <= (entry.getValue()).intValue() || flag);
 
         return false;
+    }
+
+    /**
+     * スコア項目を取得する
+     * @param objective
+     * @param name
+     * @return
+     */
+    private static Score getScore(Objective objective, Player player) {
+
+        if ( Utility.isCB178orLater() ) {
+            return objective.getScore(player.getName());
+        } else {
+            @SuppressWarnings("deprecation")
+            Score score = objective.getScore(player);
+            return score;
+        }
     }
 }
 

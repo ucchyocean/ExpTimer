@@ -5,6 +5,7 @@
  */
 package com.github.ucchyocean.et;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -18,6 +19,9 @@ import org.bukkit.command.TabExecutor;
 public class ExpTimerCommand implements TabExecutor {
 
     private static final String PERMISSION_PREFIX = "exptimer.";
+
+    private static final String[] COMMANDS =
+        {"start", "pause", "end", "cancel", "status", "list", "reload"};
 
     private ExpTimer plugin;
 
@@ -36,6 +40,38 @@ public class ExpTimerCommand implements TabExecutor {
     public List<String> onTabComplete(
             CommandSender sender, Command command, String label, String[] args) {
 
+        // コマンド権限が無い場合は何も返さない
+        if ( !sender.hasPermission("exptimer") ) {
+            return new ArrayList<String>();
+        }
+
+        // 第1引数で補完された場合の処理
+        if ( args.length == 1 ) {
+            String pre = args[0];
+            ArrayList<String> candidates = new ArrayList<String>();
+            for ( String com : COMMANDS ) {
+                if ( com.startsWith(pre) && sender.hasPermission(PERMISSION_PREFIX + com) ) {
+                    candidates.add(com);
+                }
+            }
+            return candidates;
+        }
+
+        // start の第2引数で補完された場合の処理
+        if ( args.length >= 2 && args[0].equalsIgnoreCase("start") ) {
+            // 設定名で補完する
+
+            String pre = args[1];
+            ArrayList<String> candidates = new ArrayList<String>();
+            for ( String key : plugin.configs.keySet() ) {
+                if ( key.startsWith(pre) ) {
+                    candidates.add(key);
+                }
+            }
+            return candidates;
+        }
+
+        // その他の場合はnullを返してデフォルト動作（プレイヤー名で補完）
         return null;
     }
 
@@ -279,6 +315,34 @@ public class ExpTimerCommand implements TabExecutor {
             plugin.reloadConfigData();
             sender.sendMessage(ChatColor.GRAY + "config.yml をリロードしました。");
             return true;
+
+//        } else if ( args[0].equalsIgnoreCase("debug") ) {
+//            // PlayerSelector のデバッグ
+//
+//            if ( args.length <= 1 || !PlayerSelector.isPattern(args[1]) ) {
+//                sender.sendMessage("プレイヤーセレクターのパターンを指定してください。");
+//                return true;
+//            }
+//
+//            Location location = null;
+//            if ( sender instanceof Player ) {
+//                location = ((Player)sender).getLocation().clone();
+//            } else if ( sender instanceof BlockCommandSender ) {
+//                location = ((BlockCommandSender)sender).getBlock().getLocation().clone();
+//            }
+//            String pattern = args[1];
+//            Player[] players = PlayerSelector.getPlayers(location, pattern);
+//
+//            Bukkit.getLogger().info("players array");
+//            if ( players != null ) {
+//                for ( Player p : players ) {
+//                    Bukkit.getLogger().info("-" + p);
+//                }
+//            } else {
+//                Bukkit.getLogger().info("null でした。");
+//            }
+//
+//            return true;
         }
 
         return false;
