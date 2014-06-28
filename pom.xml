@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.ucchyocean</groupId>
   <artifactId>ExpTimer</artifactId>
-  <version>2.3.3</version>
+  <version>2.3.4</version>
   <description>Experience-Bar Timer Plugin</description>
 
   <licenses>
@@ -36,7 +36,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>2.3.2</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -67,17 +67,17 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.7.9-R0.2-SNAPSHOT</version>
+      <version>1.7.9-R0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>me.confuser</groupId>
       <artifactId>BarAPI</artifactId>
-      <version>3.0</version>
+      <version>3.1</version>
     </dependency>
     <dependency>
       <groupId>com.github.ucchyocean</groupId>
       <artifactId>ColorTeaming</artifactId>
-      <version>2.3.6</version>
+      <version>2.3.8</version>
     </dependency>
   </dependencies>
 </project>

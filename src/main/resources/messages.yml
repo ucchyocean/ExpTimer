@@ -1,7 +1,7 @@
 # ${project.name} v${project.version}
 # @author     ucchy
 # @license    LGPLv3
-# @copyright  Copyright ucchy 2013
+# @copyright  Copyright ucchy 2014
 
 prefix: '&f[ExpTimer]'
 preStartSec: '&d開始まで %d秒'
@@ -12,3 +12,6 @@ rest60sec: '&d残り 1分です'
 preEndSec: '&d残り %d秒です'
 end: '&d終了！'
 onTeamWon: '%sチームの勝利です！'
+
+sidebarTitle: '&6残り時間'
+bossbarTitle: '&6残り時間 - %s'

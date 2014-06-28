@@ -80,6 +80,9 @@ public class TimerTask extends BukkitRunnable {
     // コンフィグデータ
     private ExpTimerConfigData configData;
 
+    // ボスバーのタイトルテンプレート
+    private String bossbarTitleTemplate;
+
     /**
      * コンストラクタ
      * @param secondsReady タイマー開始までの設定時間
@@ -141,11 +144,24 @@ public class TimerTask extends BukkitRunnable {
 
             // 新しいオブジェクティブを作成する
             objective = sb.registerNewObjective("exptimer", "dummy");
-            objective.setDisplayName("残り時間");
+            String sidebarTitle = configData.getMessages().get("sidebarTitle");
+            if ( sidebarTitle == null || sidebarTitle.equals("") ) {
+                sidebarTitle = "残り時間";
+            }
+            objective.setDisplayName(Utility.replaceColorCode(sidebarTitle));
             sidebarItem = null;
 
             // サイドバーに表示
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
+
+        // ボスバーのタイトルのテンプレートを取得
+        if ( configData.isUseBossBar() ) {
+            bossbarTitleTemplate = configData.getMessages().get("bossbarTitle");
+            if ( bossbarTitleTemplate == null || bossbarTitleTemplate.equals("") ) {
+                bossbarTitleTemplate = "&6残り時間 - %s";
+            }
+            bossbarTitleTemplate = Utility.replaceColorCode(bossbarTitleTemplate);
         }
     }
 
@@ -476,8 +492,8 @@ public class TimerTask extends BukkitRunnable {
         int hour = secondsGameRest / 3600;
         int minute = (secondsGameRest - hour * 3600) / 60;
         int second = secondsGameRest - hour * 3600 - minute * 60;
-        String message = String.format(
-                ChatColor.GOLD + "残り時間 - %02d:%02d:%02d", hour, minute, second);
+        String timeMessage = String.format("%02d:%02d:%02d", hour, minute, second);
+        String message = String.format(bossbarTitleTemplate, timeMessage);
 
         for ( Player player : getRefreshTargets() ) {
             barapi.setMessage(player, message, progress);
@@ -647,6 +663,11 @@ public class TimerTask extends BukkitRunnable {
         }
     }
 
+    /**
+     * スコア項目を削除する
+     * @param objective
+     * @param name
+     */
     @SuppressWarnings("deprecation")
     private static void removeScore(Objective objective, String name) {
 
