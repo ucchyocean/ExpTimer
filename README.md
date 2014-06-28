@@ -1,6 +1,8 @@
 ExpTimer
 ========
 
+Build Status : [![Build Status](https://travis-ci.org/ucchyocean/ExpTimer.svg?branch=master)](https://travis-ci.org/ucchyocean/ExpTimer)
+
 <p>
 <h2>コマンド</h2>
 ※ コマンドは "/exptimer"、省略形として、"/et"、"/timer" も使用可能です。<br />
