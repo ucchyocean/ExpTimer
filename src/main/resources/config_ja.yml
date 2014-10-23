@@ -93,13 +93,16 @@ infiniteTimer:
 # endWithTeamPointUnder→チームポイントが指定された値を下回ったとき
 # endWithTeamPointOver→チームポイントが指定された値を上回ったとき
 # に、自動的にタイマーが停止します。
+# また、commandsOnEnd と consoleCommandsOnEnd に、
+# 勝ったチームに置き換わるキーワード %winteam を使用できます。
+# タイマー時間切れで勝ちチームが決まらない場合は、%winteam を含んだコマンドは実行されません。
 ColorTeaming:
   seconds: 150
   readySeconds: 10
   commandsOnStart: ['say バトル開始！！']
   consoleCommandsOnStart: ['rc', 'cclass all knight', 'ctp all spawn']
   commandsOnEnd: ['say バトル終了！！']
-  consoleCommandsOnEnd: ['tp @a 0 65 0', 'clear @a', 'ct removeall']
+  consoleCommandsOnEnd: ['clear @a', 'effect @a clear', 'cgive %winteam DIAMOND:5', 'ct removeall']
   countdownOnStart: 3
   countdownOnEnd: 5
   playSound: true

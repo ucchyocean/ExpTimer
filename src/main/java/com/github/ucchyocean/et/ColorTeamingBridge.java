@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.Team;
 
 import com.github.ucchyocean.ct.ColorTeaming;
 import com.github.ucchyocean.ct.ColorTeamingAPI;
@@ -87,7 +87,7 @@ public class ColorTeamingBridge implements Listener {
             return;
         }
 
-        endTask(event.getTeam().getName());
+        endTask(event.getTeam());
     }
 
     /**
@@ -117,9 +117,9 @@ public class ColorTeamingBridge implements Listener {
 
     /**
      * タスクを終了する
-     * @param wonTeamName 勝利したチームのチーム名
+     * @param wonTeamName 勝利したチーム
      */
-    private void endTask(String wonTeamName) {
+    private void endTask(Team wonTeam) {
 
         // タイマーが開始していないなら、ここで終了する。
         TimerTask task = plugin.getTask();
@@ -128,19 +128,29 @@ public class ColorTeamingBridge implements Listener {
         }
 
         // メッセージを流す
-        broadcastMessage("onTeamWon", wonTeamName);
+        broadcastMessage("onTeamWon", wonTeam.getDisplayName());
 
         // タスク終了
-        plugin.endTask(true);
+        plugin.endTask(true, wonTeam.getName());
     }
 
     /**
      * タスクを終了する
-     * @param wonTeamName 勝利したチームのチーム名
+     * @param wonTeam 勝利したチーム
      */
-    private void endTask(TeamNameSetting wonTeamName) {
+    private void endTask(TeamNameSetting wonTeam) {
 
-        endTask(wonTeamName.toString() + ChatColor.RESET);
+        // タイマーが開始していないなら、ここで終了する。
+        TimerTask task = plugin.getTask();
+        if ( task == null ) {
+            return;
+        }
+
+        // メッセージを流す
+        broadcastMessage("onTeamWon", wonTeam.toString());
+
+        // タスク終了
+        plugin.endTask(true, wonTeam.getID());
     }
 
     /**

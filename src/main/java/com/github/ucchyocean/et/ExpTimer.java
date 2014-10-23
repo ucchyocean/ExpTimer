@@ -202,12 +202,23 @@ public class ExpTimer extends JavaPlugin implements Listener {
      * @param invokeNextConfig nextConfigを起動するかどうか
      */
     public void endTask(boolean invokeNextConfig) {
+        endTask(invokeNextConfig, null);
+    }
+
+    /**
+     * 現在実行中のタスクを終了コマンドを実行してから終了する
+     * @param invokeNextConfig nextConfigを起動するかどうか
+     * @param winTeam 勝利チーム（不要ならnull指定）
+     */
+    public void endTask(boolean invokeNextConfig, String winTeam) {
 
         if ( timer != null ) {
             // 終了コマンドを実行してタスクを終了する
 
-            dispatchCommandsBySender(configData.getCommandsOnEnd());
-            dispatchCommandsByConsole(configData.getConsoleCommandsOnEnd());
+            dispatchCommandsBySender(configData.getCommandsOnEnd(), winTeam);
+            dispatchCommandsByConsole(configData.getConsoleCommandsOnEnd(), winTeam);
+
+            // タスク終了
             cancelTask();
 
             // リピート設定なら、新しいタスクを再スケジュール
@@ -272,7 +283,23 @@ public class ExpTimer extends JavaPlugin implements Listener {
         }
 
         // コマンド実行
-        dispatchCommands(currentCommandSender, commands);
+        dispatchCommands(currentCommandSender, commands, null);
+    }
+
+    /**
+     * キャッシュされているCommandSenderで、指定されたコマンドをまとめて実行する。
+     * @param commands コマンド
+     * @param winTeam 勝利チーム（不要ならnull指定）
+     */
+    protected void dispatchCommandsBySender(List<String> commands, String winTeam) {
+
+        // currentCommandSenderが既に無効なら、ConsoleSenderに置き換えておく
+        if ( currentCommandSender == null ) {
+            currentCommandSender = Bukkit.getConsoleSender();
+        }
+
+        // コマンド実行
+        dispatchCommands(currentCommandSender, commands, winTeam);
     }
 
     /**
@@ -280,20 +307,42 @@ public class ExpTimer extends JavaPlugin implements Listener {
      * @param commands コマンド
      */
     protected void dispatchCommandsByConsole(List<String> commands) {
-        dispatchCommands(Bukkit.getConsoleSender(), commands);
+        dispatchCommands(Bukkit.getConsoleSender(), commands, null);
+    }
+
+    /**
+     * コンソールで、指定されたコマンドをまとめて実行する。
+     * @param commands コマンド
+     * @param winTeam 勝利チーム（不要ならnull指定）
+     */
+    protected void dispatchCommandsByConsole(List<String> commands, String winTeam) {
+        dispatchCommands(Bukkit.getConsoleSender(), commands, winTeam);
     }
 
     /**
      * 指定されたコマンドをまとめて実行する。
      * @param sender コマンドを実行する人
      * @param commands コマンド
+     * @param winTeam 勝利チーム（不要ならnull指定）
      */
-    private void dispatchCommands(CommandSender sender, List<String> commands) {
+    private void dispatchCommands(
+            CommandSender sender, List<String> commands, String winTeam) {
 
         for ( String command : commands ) {
 
             if ( command.startsWith("/") ) {
                 command = command.substring(1); // スラッシュ削除
+            }
+
+            if ( command.contains("%winteam") ) {
+                // 勝利チームキーワードが含まれる場合
+
+                if ( winTeam == null ) {
+                    continue; // コマンドは実行せずに、次へ進む。
+                }
+
+                // キーワードを置き換えておく
+                command = command.replace("%winteam", winTeam);
             }
 
             // コマンドブロックパターンがコマンドに含まれている場合は、
