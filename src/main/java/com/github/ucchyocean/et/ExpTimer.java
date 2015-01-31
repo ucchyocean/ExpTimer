@@ -22,6 +22,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 /**
  * 経験値タイマー
@@ -38,6 +40,9 @@ public class ExpTimer extends JavaPlugin implements Listener {
     private CommandSender currentCommandSender;
     private ColorTeamingBridge ctbridge;
     private BarAPIBridge babridge;
+
+    // 同期用のスコアボード
+    private Objective obj;
 
     /**
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -74,6 +79,13 @@ public class ExpTimer extends JavaPlugin implements Listener {
         // BarAPIが居るかどうかの確認
         if ( getServer().getPluginManager().isPluginEnabled("BarAPI") ) {
             babridge = new BarAPIBridge();
+        }
+
+        // 同期表示用のスコアボードを準備
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        obj = scoreboard.getObjective("exptimer_time");
+        if ( obj == null ) {
+            obj = scoreboard.registerNewObjective("exptimer_time", "dummy");
         }
     }
 
@@ -190,6 +202,9 @@ public class ExpTimer extends JavaPlugin implements Listener {
             if ( configData.isUseBossBar() ) {
                 timer.removeBossbar();
             }
+
+            // 同期用スコアボードをリセットする
+            timer.resetScoreboard();
 
             // タスクを終了する
             timer.endTimer();
@@ -420,5 +435,12 @@ public class ExpTimer extends JavaPlugin implements Listener {
      */
     protected BarAPIBridge getBarAPI() {
         return babridge;
+    }
+
+    /**
+     * 同期用スコアボードのオブジェクティブを取得する
+     */
+    protected Objective getObjForSyncSB() {
+        return obj;
     }
 }

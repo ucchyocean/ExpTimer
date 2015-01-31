@@ -265,6 +265,9 @@ public class TimerTask extends BukkitRunnable {
         if ( configData.isUseBossBar() ) {
             refreshBossbar();
         }
+
+        // 同期用スコアボードとの同期
+        refreshScoreboard();
     }
 
     /**
@@ -512,6 +515,20 @@ public class TimerTask extends BukkitRunnable {
         for ( Player player : getRefreshTargets() ) {
             ExpTimer.getInstance().getBarAPI().removeBar(player);
         }
+    }
+
+    /**
+     * 同期用スコアボードを更新する
+     */
+    private void refreshScoreboard() {
+        getScore(plugin.getObjForSyncSB(), "time").setScore(secondsGameRest);
+    }
+
+    /**
+     * 同期用スコアボードをリセットする
+     */
+    protected void resetScoreboard() {
+        getScore(plugin.getObjForSyncSB(), "time").setScore(0);
     }
 
     /**
