@@ -186,14 +186,25 @@ public class TimerTask extends BukkitRunnable {
 
             if ( secondsReadyRest > 0 ) {
                 // スタート前のカウントダウン
-                broadcastMessage("preStartSec", secondsReadyRest);
+                if ( configData.isUseTitle() ) {
+                    sendTitle(secondsReadyRest + "");
+                } else {
+                    broadcastMessage("preStartSec", secondsReadyRest);
+                }
                 if ( configData.isPlaySound() ) {
                     playCountdownSound();
                 }
             } else {
                 // スタート
                 flagStart = true;
-                broadcastMessage("start");
+                if ( configData.isUseTitle() ) {
+                    String msg = configData.getMessages().get("start");
+                    if ( msg != null && !msg.equals("") ) {
+                        sendTitle(msg);
+                    }
+                } else {
+                    broadcastMessage("start");
+                }
                 if ( configData.isPlaySound() ) {
                     playStartEndSound();
                 }
@@ -233,14 +244,25 @@ public class TimerTask extends BukkitRunnable {
             if ( 0 < secondsGameRest &&
                     secondsGameRest <= configData.getCountdownOnEnd() ) {
                 // 終了前のカウントダウン
-                broadcastMessage("preEndSec", secondsGameRest);
+                if ( configData.isUseTitle() ) {
+                    sendTitle(secondsGameRest + "");
+                } else {
+                    broadcastMessage("preEndSec", secondsGameRest);
+                }
                 if ( configData.isPlaySound() ) {
                     playCountdownSound();
                 }
             } else if ( secondsGameRest <= 0 ) {
                 // 終了
                 flagEnd = true;
-                broadcastMessage("end");
+                if ( configData.isUseTitle() ) {
+                    String msg = configData.getMessages().get("end");
+                    if ( msg != null && !msg.equals("") ) {
+                        sendTitle(msg);
+                    }
+                } else {
+                    broadcastMessage("end");
+                }
                 if ( configData.isPlaySound() ) {
                     playStartEndSound();
                 }
@@ -518,6 +540,21 @@ public class TimerTask extends BukkitRunnable {
     }
 
     /**
+     * タイトル部分にメッセージを表示する
+     * @param msg メッセージ
+     */
+    private void sendTitle(String msg) {
+
+        if ( !Utility.isCB180orLater() ) {
+            return;
+        }
+
+        for ( Player player : getRefreshTargets() ) {
+            TitleDisplayComponent.display(player, msg, 0, 0, 20);
+        }
+    }
+
+    /**
      * 同期用スコアボードを更新する
      */
     private void refreshScoreboard() {
@@ -624,7 +661,7 @@ public class TimerTask extends BukkitRunnable {
      * タイマーのスケジュールを行う
      */
     protected void startTimer() {
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this, 20, 20);
+        task = runTaskTimer(plugin, 20, 20);
     }
 
     /**
@@ -632,7 +669,8 @@ public class TimerTask extends BukkitRunnable {
      */
     protected void endTimer() {
         if ( task != null ) {
-            Bukkit.getScheduler().cancelTask(task.getTaskId());
+            cancel();
+            task = null;
         }
     }
 

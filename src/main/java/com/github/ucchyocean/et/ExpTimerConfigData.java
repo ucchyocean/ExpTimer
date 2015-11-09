@@ -73,6 +73,9 @@ public class ExpTimerConfigData {
     /** ボスMOBの体力バーをタイマー表示として使用するかどうか */
     private boolean useBossBar;
 
+    /** タイトル部分をタイマー表示として使用するかどうか */
+    private boolean useTitle;
+
     /** メッセージファイルのファイル名指定 */
     private String messageFileName;
 
@@ -127,6 +130,7 @@ public class ExpTimerConfigData {
         useExpBar = true;
         useSideBar = false;
         useBossBar = false;
+        useTitle = false;
         endWithCTTeamDefeat = false;
         endWithCTLeaderDefeat = false;
         endWithCTKillTrophy = false;
@@ -170,6 +174,7 @@ public class ExpTimerConfigData {
             data.useExpBar = section.getBoolean("useExpBar", data.useExpBar);
             data.useSideBar = section.getBoolean("useSideBar", data.useSideBar);
             data.useBossBar = section.getBoolean("useBossBar", data.useBossBar);
+            data.useTitle = section.getBoolean("useTitle", data.useTitle);
             data.messageFileName = section.getString("messageFileName");
             data.nextConfig = section.getString("nextConfig");
             data.endWithCTTeamDefeat =
@@ -231,6 +236,7 @@ public class ExpTimerConfigData {
             data.useExpBar = section.getBoolean("useExpBar", defaults.useExpBar);
             data.useSideBar = section.getBoolean("useSideBar", defaults.useSideBar);
             data.useBossBar = section.getBoolean("useBossBar", defaults.useBossBar);
+            data.useTitle = section.getBoolean("useTitle", defaults.useTitle);
             data.endWithCTTeamDefeat =
                 section.getBoolean("endWithCTTeamDefeat", defaults.endWithCTTeamDefeat);
             data.endWithCTLeaderDefeat =
@@ -306,6 +312,7 @@ public class ExpTimerConfigData {
         data.useExpBar = this.useExpBar;
         data.useSideBar = this.useSideBar;
         data.useBossBar = this.useBossBar;
+        data.useTitle = this.useTitle;
         data.messageFileName = this.messageFileName;
         data.nextConfig = this.nextConfig;
         data.endWithCTTeamDefeat = this.endWithCTTeamDefeat;
@@ -499,6 +506,14 @@ public class ExpTimerConfigData {
 
     public void setUseBossBar(boolean useBossBar) {
         this.useBossBar = useBossBar;
+    }
+
+    public boolean isUseTitle() {
+        return useTitle;
+    }
+
+    public void setUseTitle(boolean useTitle) {
+        this.useTitle = useTitle;
     }
 
     public String getMessageFileName() {

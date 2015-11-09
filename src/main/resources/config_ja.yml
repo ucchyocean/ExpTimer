@@ -21,6 +21,7 @@ default:
   useExpBar: true
   useSideBar: false
   useBossBar: false
+  useTitle: false
   endWithCTTeamDefeat: false
   endWithCTLeaderDefeat: false
   endWithCTKillTrophy: false
@@ -85,6 +86,17 @@ infiniteTimer:
   countdownOnEnd: 0
   playSound: true
   nextConfig: 'infiniteTimer'
+
+# Title表示を使ったタイマーのサンプルです。
+# Bukkit 1.8 以降のサーバーでしか効果が無いことにご注意ください。
+titleTimer:
+  seconds: 10
+  readySeconds: 5
+  commandsOnStart: ['say スタート！']
+  commandsOnEnd: ['say 終了！']
+  countdownOnStart: 3
+  countdownOnEnd: 5
+
 
 # ColorTeamingと連携した場合の、タイマー設定のサンプルです。
 # endWithCTTeamDefeat→1チームを残して他のチームが全て全滅したとき

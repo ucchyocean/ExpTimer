@@ -307,6 +307,7 @@ public class PlayerSelector {
             if ((world == null || player.getWorld() == world) && (s == null || flag1 != s.equalsIgnoreCase(player.getName()))) {
                 if (s1 != null) {
                     Scoreboard sb = player.getScoreboard();
+                    @SuppressWarnings("deprecation")
                     Team team = sb.getPlayerTeam(player);
                     String s2 = team == null ? "" : team.getName();
 
