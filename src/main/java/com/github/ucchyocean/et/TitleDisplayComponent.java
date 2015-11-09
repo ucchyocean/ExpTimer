@@ -40,8 +40,19 @@ public class TitleDisplayComponent {
         sendTitle(player, fadein, duration, fadeout, title, subtitle);
     }
 
-    private static void sendTitle(Player player, Integer fadein, Integer duration, Integer fadeout, String title, String subtitle) {
+    private static void sendTitle(Player player, int fadein, int duration, int fadeout, String title, String subtitle) {
         try {
+
+            {
+                title = ChatColor.translateAlternateColorCodes('&', title);
+                title = title.replaceAll("%player%", player.getDisplayName());
+                Object enumTitle = getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0].getField("TIMES").get(null);
+                Object chatTitle = getNMSClass("IChatBaseComponent").getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "");
+                Constructor<?> titleConstructor = getNMSClass("PacketPlayOutTitle").getConstructor(getNMSClass("PacketPlayOutTitle").getDeclaredClasses()[0], getNMSClass("IChatBaseComponent"), int.class, int.class, int.class);
+                Object titlePacket = titleConstructor.newInstance(enumTitle, chatTitle, fadein, duration, fadeout);
+                sendPacket(player, titlePacket);
+            }
+
             if (title != null) {
                 title = ChatColor.translateAlternateColorCodes('&', title);
                 title = title.replaceAll("%player%", player.getDisplayName());
