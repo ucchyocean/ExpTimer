@@ -616,7 +616,7 @@ public class TimerTask extends BukkitRunnable {
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
         } else {
-            sound = Sound.NOTE_STICKS;
+            sound = CompatibleSound.NOTE_STICKS;
         }
 
         for ( Player player : getRefreshTargets() ) {
@@ -634,7 +634,7 @@ public class TimerTask extends BukkitRunnable {
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
         } else {
-            sound = Sound.NOTE_PLING;
+            sound = CompatibleSound.NOTE_PLING;
         }
 
         for ( Player player : getRefreshTargets() ) {

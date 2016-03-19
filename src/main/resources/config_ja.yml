@@ -96,7 +96,7 @@ titleTimer:
   commandsOnEnd: ['say 終了！']
   countdownOnStart: 3
   countdownOnEnd: 5
-
+  useTitle: true
 
 # ColorTeamingと連携した場合の、タイマー設定のサンプルです。
 # endWithCTTeamDefeat→1チームを残して他のチームが全て全滅したとき
