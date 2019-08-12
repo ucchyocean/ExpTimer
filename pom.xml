@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.ucchyocean</groupId>
   <artifactId>ExpTimer</artifactId>
-  <version>2.5.0</version>
+  <version>2.6.0</version>
   <description>Experience-Bar Timer Plugin</description>
 
   <licenses>
@@ -35,11 +35,12 @@
     </resources>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.8.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
@@ -66,19 +67,9 @@
 
   <repositories>
     <repository>
-      <id>bukkit-repo</id>
-      <name>Craft Bukkit Maven Repository</name>
-      <url>http://repo.bukkit.org/content/groups/public</url>
-    </repository>
-    <repository>
       <id>spigot-repo</id>
       <name>Spigot Maven Repository</name>
-      <url>https://hub.spigotmc.org/nexus/content/groups/public</url>
-    </repository>
-    <repository>
-      <id>confuser-repo</id>
-      <name>confuser repository</name>
-      <url>http://ci.frostcast.net/plugin/repository/everything</url>
+      <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
     </repository>
     <repository>
       <id>ucchy-github</id>
@@ -91,12 +82,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.9-R0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>me.confuser</groupId>
-      <artifactId>BarAPI</artifactId>
-      <version>3.4-SNAPSHOT</version>
+      <version>1.14.4-R0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.github.ucchyocean</groupId>

@@ -494,18 +494,17 @@ public class TimerTask extends BukkitRunnable {
      */
     private void refreshBossbar() {
 
-        if ( ExpTimer.getInstance().getBarAPI() == null ) {
-            return;
+        if ( ExpTimer.getInstance().getBossBarManager() == null
+                || ExpTimer.getInstance().getBossBarManager().isEnd() ) {
+            ExpTimer.getInstance().newBossBarManager(getRefreshTargets());
         }
 
-        BarAPIBridge barapi = ExpTimer.getInstance().getBarAPI();
+        BossBarManager manager = ExpTimer.getInstance().getBossBarManager();
 
         float progress = (float)secondsGameRest / (float)secondsGameMax;
         if ( secondsGameRest <= 0 || progress < 0.0f ) {
-            // BarAPIを消去して終わる
-            for ( Player player : getRefreshTargets() ) {
-                barapi.removeBar(player);
-            }
+            // BossBarを消去して終わる
+            manager.removeBar();
             return;
         }
 
@@ -520,9 +519,7 @@ public class TimerTask extends BukkitRunnable {
         String timeMessage = String.format("%02d:%02d:%02d", hour, minute, second);
         String message = String.format(bossbarTitleTemplate, timeMessage);
 
-        for ( Player player : getRefreshTargets() ) {
-            barapi.setMessage(player, message, progress);
-        }
+        manager.setMessage(message, progress);
     }
 
     /**
@@ -530,13 +527,12 @@ public class TimerTask extends BukkitRunnable {
      */
     protected void removeBossbar() {
 
-        if ( ExpTimer.getInstance().getBarAPI() == null ) {
+        if ( ExpTimer.getInstance().getBossBarManager() == null
+                || ExpTimer.getInstance().getBossBarManager().isEnd() ) {
             return;
         }
 
-        for ( Player player : getRefreshTargets() ) {
-            ExpTimer.getInstance().getBarAPI().removeBar(player);
-        }
+        ExpTimer.getInstance().getBossBarManager().removeBar();
     }
 
     /**
@@ -616,7 +612,7 @@ public class TimerTask extends BukkitRunnable {
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
         } else {
-            sound = CompatibleSound.NOTE_STICKS;
+            sound = Sound.BLOCK_NOTE_BLOCK_BIT;
         }
 
         for ( Player player : getRefreshTargets() ) {
@@ -634,7 +630,7 @@ public class TimerTask extends BukkitRunnable {
         if ( isValidSoundName(name) ) {
             sound = Sound.valueOf(name);
         } else {
-            sound = CompatibleSound.NOTE_PLING;
+            sound = Sound.BLOCK_NOTE_BLOCK_PLING;
         }
 
         for ( Player player : getRefreshTargets() ) {

@@ -39,7 +39,7 @@ public class ExpTimer extends JavaPlugin implements Listener {
     protected HashMap<String, ExpTimerConfigData> configs;
     private CommandSender currentCommandSender;
     private ColorTeamingBridge ctbridge;
-    private BarAPIBridge babridge;
+    private BossBarManager bbmanager;
 
     // 同期用のスコアボード
     private Objective obj;
@@ -74,11 +74,6 @@ public class ExpTimer extends JavaPlugin implements Listener {
                 getLogger().warning("ColorTeaming was too old. The cooperation feature will be disabled.");
                 getLogger().warning("NOTE: Please use ColorTeaming v2.3.2 or later version.");
             }
-        }
-
-        // BarAPIが居るかどうかの確認
-        if ( getServer().getPluginManager().isPluginEnabled("BarAPI") ) {
-            babridge = new BarAPIBridge();
         }
 
         // 同期表示用のスコアボードを準備
@@ -430,11 +425,21 @@ public class ExpTimer extends JavaPlugin implements Listener {
     }
 
     /**
-     * BarAPI連携時に、BarAPIBridgeを返す
-     * @return BarAPIBridge、非連携時にはnullになることに注意
+     * 新しいBossBarManagerを作成する
+     * @param players 表示対象プレイヤー
+     * @return BossBarManager
      */
-    protected BarAPIBridge getBarAPI() {
-        return babridge;
+    protected BossBarManager newBossBarManager(List<Player> players) {
+        bbmanager = new BossBarManager(players);
+        return bbmanager;
+    }
+
+    /**
+     * BossBarManagerを返す
+     * @return BossBarManager
+     */
+    protected BossBarManager getBossBarManager() {
+        return bbmanager;
     }
 
     /**
