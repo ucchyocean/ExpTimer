@@ -36,8 +36,11 @@ public class BossBarManager {
      * @param percent ゲージ量（最大値が 100.0、最小値が 0.0）
      */
     public void setMessage(String message, float percent) {
+        float value = percent / 100;
+        if ( value > 1 ) value = 1;
+        if ( value < 0 ) value = 0;
         bar.setTitle(message);
-        bar.setProgress(percent);
+        bar.setProgress(value);
     }
 
     /**
